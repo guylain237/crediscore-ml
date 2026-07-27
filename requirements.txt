@@ -1,0 +1,23 @@
+# Cœur data science
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.5
+lightgbm>=4.3
+
+# Explicabilité et équité
+shap>=0.46
+fairlearn>=0.11
+
+# Suivi d'expériences
+mlflow>=2.14
+
+# Visualisation
+matplotlib>=3.9
+seaborn>=0.13
+
+# Qualité et tests
+pytest>=8.0
+ruff>=0.5
+
+# Notebooks
+jupyter>=1.0
