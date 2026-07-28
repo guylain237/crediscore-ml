@@ -34,11 +34,16 @@ C'est la matière première des questions/réponses du jury.
 - **Raison :** transforme une exigence réglementaire en garde-fou technique
   vérifiable et démontrable au jury.
 
-## D-004 — 27/07/2026 — Environnement Python : Anaconda existant pour l'exploration, requirements.txt pour la reproductibilité
+## D-004 — 28/07/2026 — Environnement Python : un venv dédié par dépôt, jamais le Python global
 
-- **Contexte :** poste Windows avec Anaconda (Python 3.13) déjà installé ; 20 jours.
-- **Choix :** exploration/EDA sur l'environnement Anaconda ; les dépendances
-  exactes sont pinées dans `requirements.txt` et installées proprement dans les
-  images Docker (entraînement et API) du dépôt mlops.
-- **Raison :** la reproductibilité qui compte pour le jury est celle des conteneurs
-  d'entraînement et d'inférence, pas celle du poste de développement.
+- **Contexte :** poste Windows avec plusieurs Python (Anaconda, système) ; risque
+  d'installer ou d'exécuter silencieusement au mauvais endroit.
+- **Options :** environnement Anaconda partagé ; conda env dédié ; venv par dépôt.
+- **Choix :** un environnement virtuel `.venv` à la racine de chaque dépôt
+  (`python -m venv .venv`), alimenté exclusivement par le `requirements.txt` du
+  dépôt ; toute commande (`python`, `pip`, `pytest`, `jupyter`) passe par
+  `.venv\Scripts\python.exe`. Les images Docker (entraînement, API) réinstallent
+  les mêmes `requirements.txt`, garantissant l'identité poste/production.
+- **Raison :** isolation stricte des dépendances, reproductibilité vérifiable par
+  le jury (`requirements.txt` = source de vérité unique), et cohérence avec les
+  conteneurs déployés. Remplace la décision initiale « Anaconda pour l'exploration ».

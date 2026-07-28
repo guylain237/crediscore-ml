@@ -58,8 +58,39 @@ pratiques). Placer les 8 CSV dans `input/` à la racine (voir `docs/data_profile
 
 ## Installation
 
-```bash
+Le projet s'exécute **exclusivement dans un environnement virtuel dédié** — jamais
+sur le Python global ni sur une distribution Anaconda (voir décision D-004 dans
+[`docs/decisions.md`](docs/decisions.md)).
+
+```powershell
 python -m venv .venv
-.venv\Scripts\activate      # Windows
-pip install -r requirements.txt
+.venv\Scripts\activate                  # le prompt doit afficher (.venv)
+python -m pip install -r requirements.txt
+```
+
+Vérification (le test échoue si Anaconda ou le Python global est actif) :
+
+```powershell
+pytest tests\test_environment.py -q
+```
+
+Deux fichiers de dépendances, aux rôles distincts :
+
+| Fichier | Rôle |
+|---|---|
+| `requirements.txt` | Contraintes minimales lisibles (`pandas>=2.2`) — ce qu'on installe |
+| `requirements.lock.txt` | Versions exactes constatées (`pip freeze`) — ce qui rend un résultat reproductible et ce que reprennent les images Docker |
+
+Si `activate` est bloqué par Windows (fichiers marqués « provenant d'Internet »
+sous OneDrive) :
+
+```powershell
+Get-ChildItem .venv -Recurse -File | Unblock-File
+```
+
+## Utilisation
+
+```powershell
+python src\data\profile_raw.py    # profilage des 8 sources -> docs/data_profile.md
+pytest                            # tests unitaires + garde-fou variables sensibles
 ```
