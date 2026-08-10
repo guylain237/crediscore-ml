@@ -1,6 +1,8 @@
-# Données — jamais versionnées
-input/
-data/
+# Données — jamais versionnées.
+# La barre oblique initiale ANCRE le motif à la racine du dépôt : sans elle,
+# « data/ » ignorerait aussi src/data/, qui est du code livrable.
+/input/
+/data/
 *.csv
 *.zip
 *.parquet
