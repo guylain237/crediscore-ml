@@ -91,6 +91,20 @@ Get-ChildItem .venv -Recurse -File | Unblock-File
 ## Utilisation
 
 ```powershell
-python src\data\profile_raw.py    # profilage des 8 sources -> docs/data_profile.md
-pytest                            # tests unitaires + garde-fou variables sensibles
+python src\data\profile_raw.py      # profilage des 8 sources   -> docs/data_profile.md
+python src\data\profile_joins.py    # jointures et intégrité    -> docs/schema_jointures.md
+pytest                              # tests unitaires + garde-fou variables sensibles
 ```
+
+## Documentation
+
+Tout chiffre cité dans ces documents est **mesuré par script sur l'intégralité
+des données**, jamais estimé.
+
+| Document | Contenu | Produit par |
+|---|---|---|
+| [`docs/data_profile.md`](docs/data_profile.md) | volumétrie, clés, cible, valeurs manquantes | `src/data/profile_raw.py` |
+| [`docs/schema_jointures.md`](docs/schema_jointures.md) | modèle relationnel, intégrité référentielle, couverture au grain dossier, colonnes temporelles | `src/data/profile_joins.py` |
+| [`docs/strategie_decoupage.md`](docs/strategie_decoupage.md) | protocole train / validation / test, métriques, règles anti-fuite | rédigé |
+| [`docs/plan_features.md`](docs/plan_features.md) | variables à construire par source, traitements, conventions | rédigé |
+| [`docs/decisions.md`](docs/decisions.md) | journal des décisions d'architecte | rédigé |

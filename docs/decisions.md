@@ -47,3 +47,74 @@ C'est la matière première des questions/réponses du jury.
 - **Raison :** isolation stricte des dépendances, reproductibilité vérifiable par
   le jury (`requirements.txt` = source de vérité unique), et cohérence avec les
   conteneurs déployés. Remplace la décision initiale « Anaconda pour l'exploration ».
+
+## D-005 — 05/08/2026 — Découpage stratifié aléatoire, et non temporel
+
+- **Contexte :** le plan de projet prévoyait un découpage temporel « si
+  possible ». Le profilage des jointures a mesuré les 14 colonnes temporelles des
+  8 sources : toutes sont des décalages **relatifs** à la date de la demande
+  courante, laquelle n'est jamais fournie. Aucune colonne texte n'est convertible
+  en date absolue.
+- **Options :** simuler une temporalité en ordonnant sur `DAYS_DECISION` ou
+  `MONTHS_BALANCE` ; renoncer au découpage temporel et le documenter ; changer de
+  jeu de données.
+- **Choix :** découpage **aléatoire stratifié sur `TARGET`** en 60/20/20
+  (184 507 / 61 502 / 61 502 dossiers), au grain `SK_ID_CURR`, jeu de test scellé
+  et ouvert une seule fois. Validation croisée stratifiée à 5 plis sur le seul
+  jeu d'entraînement.
+- **Raison :** ordonner sur un décalage relatif produirait un faux *out-of-time* —
+  deux dossiers avec le même `DAYS_DECISION` peuvent être séparés de plusieurs
+  années. Mieux vaut une limite assumée qu'une rigueur simulée. La stratification
+  est imposée par le déséquilibre (8,07 % de défauts).
+- **Contrôle compensatoire :** la résistance à la dérive, non mesurable hors
+  ligne, est reportée en production — détection de dérive (PSI/KS) sur les
+  entrées et les scores, réentraînement **déclenché par la dérive** et non par le
+  calendrier. Détail dans `docs/strategie_decoupage.md`.
+
+## D-006 — 05/08/2026 — Réduction du socle applicatif sur preuve de redondance
+
+- **Contexte :** `application_train` compte 122 colonnes, dont 14 indicateurs de
+  logement déclinés en trois versions (`_AVG`, `_MODE`, `_MEDI`).
+- **Choix :** retrait des versions `_MODE` et `_MEDI` numériques — **28 colonnes**
+  — après mesure de leurs corrélations internes, comprises entre **0,973 et
+  0,997**. Et traitement de la sentinelle `DAYS_EMPLOYED = 365243` (18,0 % des
+  dossiers) : remplacement par `NaN` **assorti** d'un indicateur binaire
+  `DAYS_EMPLOYED_ANORMAL`.
+- **Raison :** trois mesures du même objet répartissent l'importance SHAP entre
+  trois jumelles et rendent l'explication illisible, sans apporter de signal. La
+  sentinelle, elle, n'est pas une mesure mais un code : laissée telle quelle, elle
+  déplace tous les seuils de coupure des arbres ; simplement effacée, elle
+  détruirait un signal concernant un dossier sur cinq.
+- **Note :** le taux de nuls n'a **pas** servi de critère d'élimination —
+  `EXT_SOURCE_1` manque dans 56,4 % des dossiers et reste le troisième prédicteur
+  du jeu.
+
+## D-007 — 05/08/2026 — Aucune imputation, encodage catégoriel natif
+
+- **Contexte :** couverture mesurée au grain dossier très inégale selon les
+  sources : 94,6 % pour `PREV_*`, mais 30,0 % pour `BB_*` et 25,3 % pour `CC_*`.
+- **Options :** imputation par la médiane ; imputation par modèle ; aucune
+  imputation, en s'appuyant sur le traitement natif des `NaN` par LightGBM.
+- **Choix :** **aucune imputation**, complétée par des indicateurs binaires de
+  présence par famille (`A_HISTORIQUE_BUREAU`, `A_CARTE_CREDIT`…). Variables
+  catégorielles traitées nativement par LightGBM ; encodage par la cible
+  **écarté**, y compris pour `ORGANIZATION_TYPE` et ses 58 modalités.
+- **Raison :** une absence d'historique n'est pas une valeur nulle — c'est le
+  profil du primo-emprunteur, une information de risque à part entière. Imputer
+  reviendrait à affirmer une valeur inconnue. Quant au *target encoding*, il fait
+  fuiter la cible dans les variables et exige un dispositif hors-pli rigoureux
+  pour un gain non démontré face au traitement natif : un risque de fuite pour un
+  gain incertain est un mauvais échange.
+
+## D-008 — 05/08/2026 — Chiffrer le prix de la conformité par un modèle témoin
+
+- **Contexte :** `DAYS_BIRTH` est la **quatrième variable la plus corrélée** à la
+  cible (|r| = 0,078) et se trouve exclue au titre de D-003, comme `CODE_GENDER`,
+  `NAME_FAMILY_STATUS` et toute variable qui en dérive.
+- **Choix :** entraîner un **modèle témoin** incluant les variables sensibles,
+  comparer son AUC à celui du modèle conforme, et consigner l'écart dans MLflow.
+  Ce modèle témoin n'est **jamais déployé** ni exposé.
+- **Raison :** la conformité a un coût de performance ; le mesurer permet de le
+  défendre plutôt que de le subir. Un jury attend d'un architecte qu'il connaisse
+  le prix de ses contraintes, pas qu'il prétende qu'elles sont gratuites. Le
+  chiffre alimentera directement la note d'équité du Bloc 1.
