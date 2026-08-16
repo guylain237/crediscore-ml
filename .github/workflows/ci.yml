@@ -1,0 +1,54 @@
+# Intégration continue — dépôt n°1 (solution IA)
+#
+# Rend effectifs les contrôles annoncés par le plan de gouvernance
+# (docs/gouvernance.md). Sans cette CI, le contrôle C-1 n'est exécuté que si un
+# humain y pense : il existerait sans s'appliquer.
+#
+# Le workflow reproduit à l'identique la procédure d'installation du README —
+# création d'un .venv puis installation depuis requirements.txt. Il vérifie donc
+# aussi, à chaque push, que cette procédure fonctionne sur une machine vierge
+# (décision D-004).
+
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch: # déclenchement manuel, utile pour la démonstration vidéo
+
+jobs:
+  qualite-et-tests:
+    name: Qualité du code et contrôles de gouvernance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Créer l'environnement virtuel du dépôt
+        # Le garde-fou tests/test_environment.py exige que l'interpréteur soit
+        # exactement <dépôt>/.venv. On applique donc la procédure du README
+        # plutôt que d'installer sur le Python du runner.
+        run: python -m venv .venv
+
+      - name: Installer les dépendances
+        run: .venv/bin/python -m pip install --upgrade pip -r requirements.txt
+
+      - name: Qualité du code (ruff)
+        run: .venv/bin/python -m ruff check src tests
+
+      - name: "Contrôle C-1 — exclusion des variables sensibles (P-4, D-003)"
+        # Étape isolée et nommée : le journal d'exécution rend le contrôle
+        # visible sans avoir à lire le code. Son échec interdit la publication
+        # d'un modèle (plan de gouvernance §7).
+        run: .venv/bin/python -m pytest tests/test_no_sensitive_features.py -v
+
+      - name: Suite de tests complète
+        run: .venv/bin/python -m pytest -q

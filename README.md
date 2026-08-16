@@ -3,6 +3,12 @@
 **Projet de certification — Architecte en IA (Mastère 2)**
 **Auteur :** Tagne Guylain Florian
 
+[![CI](https://github.com/guylain237/crediscore-ml/actions/workflows/ci.yml/badge.svg)](https://github.com/guylain237/crediscore-ml/actions/workflows/ci.yml)
+
+> La CI exécute à chaque `push` le **contrôle C-1** du [plan de gouvernance](docs/gouvernance.md) :
+> aucune variable sensible ne peut entrer dans le modèle. Un échec interdit la
+> publication.
+
 Scoring prédictif de risque de défaut à l'octroi de crédit à la consommation.
 Ce dépôt est le **dépôt n°1** exigé par le Bloc 4 : développement de la solution IA
 (préparation des données, entraînement, explicabilité, tests d'équité, évaluation).

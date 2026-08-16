@@ -303,7 +303,7 @@ propriétaire, un artefact et une date.
 
 | # | Contrôle | Artefact | Statut |
 |---|---|---|---|
-| **C-1** | Exclusion des variables sensibles, **bloquante** | `src/fairness/contract.py` · `tests/test_no_sensitive_features.py` | ✅ **16/08** — 14 assertions |
+| **C-1** | Exclusion des variables sensibles, **bloquante** | `src/fairness/contract.py` · `tests/test_no_sensitive_features.py` · `.github/workflows/ci.yml` | ✅ **16/08** — 14 assertions, **exécutées à chaque `push`** |
 | **C-2** | Journal d'audit de chaque décision | API de scoring | 📅 29/08 |
 | **C-3** | Détection de proxys par corrélation aux attributs protégés | `src/fairness/` | 📅 28/08 |
 | **C-4** | Mesures d'équité chiffrées par sous-population | `docs/note_equite.md` | 📅 28/08 |
