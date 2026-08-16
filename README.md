@@ -103,6 +103,9 @@ des données**, jamais estimé.
 
 | Document | Contenu | Produit par |
 |---|---|---|
+| [`docs/gouvernance.md`](docs/gouvernance.md) | **Bloc 1** — politiques P-1→P-9, contrôles C-1→C-12, registre RGPD art. 30, matrice de risques, matrice de traçabilité | rédigé |
+| [`docs/note_equite.md`](docs/note_equite.md) | **Bloc 1** — protocole de non-discrimination, métriques M-1→M-6, seuils figés avant mesure | rédigé |
+| [`docs/registre_revues.md`](docs/registre_revues.md) | **Bloc 1** — traces des revues de conformité et d'équité | tenu à jour |
 | [`docs/data_profile.md`](docs/data_profile.md) | volumétrie, clés, cible, valeurs manquantes | `src/data/profile_raw.py` |
 | [`docs/schema_jointures.md`](docs/schema_jointures.md) | modèle relationnel, intégrité référentielle, couverture au grain dossier, colonnes temporelles | `src/data/profile_joins.py` |
 | [`docs/strategie_decoupage.md`](docs/strategie_decoupage.md) | protocole train / validation / test, métriques, règles anti-fuite | rédigé |

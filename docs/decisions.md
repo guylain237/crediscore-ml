@@ -34,6 +34,15 @@ C'est la matière première des questions/réponses du jury.
 - **Raison :** transforme une exigence réglementaire en garde-fou technique
   vérifiable et démontrable au jury.
 
+> **Correctif du 16/08/2026 — à lire avec la décision.** Cette décision décrivait
+> un contrôle qui **n'existait pas** : `tests/test_no_sensitive_features.py` était
+> absent du dépôt et aucune CI ne tournait. L'écart a été constaté lors de la
+> rédaction du plan de gouvernance, et corrigé le jour même : module
+> `src/fairness/contract.py` (avec `exiger_conformite()` qui **interrompt**
+> l'entraînement) et 14 assertions de test. La décision décrivait une intention ;
+> elle décrit désormais un état. Cet écart est conservé au journal plutôt
+> qu'effacé : un journal de décisions qu'on réécrit ne vaut rien.
+
 ## D-004 — 28/07/2026 — Environnement Python : un venv dédié par dépôt, jamais le Python global
 
 - **Contexte :** poste Windows avec plusieurs Python (Anaconda, système) ; risque
@@ -118,3 +127,46 @@ C'est la matière première des questions/réponses du jury.
   défendre plutôt que de le subir. Un jury attend d'un architecte qu'il connaisse
   le prix de ses contraintes, pas qu'il prétende qu'elles sont gratuites. Le
   chiffre alimentera directement la note d'équité du Bloc 1.
+
+## D-009 — 16/08/2026 — Un plan de gouvernance opposable, pas déclaratif
+
+- **Contexte :** le Bloc 1 est intégralement documentaire. Le risque n'est pas de
+  produire trop peu de texte, mais d'en produire un que le projet ne suit pas —
+  un jury vérifie la cohérence entre ce qui est écrit et ce que contient le dépôt.
+  Le cas D-003 l'a démontré : un contrôle annoncé mais absent.
+- **Options :** un document de gouvernance descriptif et générique ; un document
+  adossé au code ; deux documents séparés sans lien.
+- **Choix :** un plan de gouvernance dont chaque engagement porte un **identifiant
+  citable** — politiques `P-1` à `P-9`, contrôles techniques `C-1` à `C-12` — avec
+  pour chaque contrôle un **artefact et une date**. Une **matrice de traçabilité**
+  relie exigence réglementaire → politique → contrôle → preuve vérifiable. Toute
+  entrée future de ce journal doit citer la politique qu'elle applique.
+- **Raison :** la gouvernance n'a de valeur que si elle contraint. Des identifiants
+  stables permettent au code, aux pipelines et aux décisions de s'y référer ; des
+  dates transforment une intention en engagement dont le non-respect se voit. Un
+  contrôle en retard devient une non-conformité **déclarée**, ce qui est
+  défendable — au contraire d'un contrôle inventé.
+
+## D-010 — 16/08/2026 — L'égalité des chances comme critère principal d'équité
+
+- **Contexte :** les taux de défaut mesurés diffèrent réellement selon les groupes :
+  **7,00 % chez les femmes contre 10,14 % chez les hommes**, et de **12,29 % (18-25 ans)
+  à 3,66 % (65 ans et plus)** — un rapport de 1 à 3,4.
+- **Options :** parité démographique comme critère bloquant ; égalité des chances
+  comme critère bloquant ; seuils de décision différenciés par groupe.
+- **Choix :** **égalité des chances** (et odds égalisées, et calibration par
+  groupe) comme critères d'arrêt ; **parité démographique publiée mais non
+  bloquante** ; **seuils par groupe formellement exclus**. Les seuils numériques
+  sont **figés avant toute mesure** et ne peuvent évoluer que par décision unanime
+  du comité d'équité.
+- **Raison :** imposer des taux d'acceptation identiques quand les risques
+  diffèrent réellement conduirait soit à accepter des dossiers plus risqués, soit
+  à refuser des demandeurs solvables — une discrimination en sens inverse.
+  L'égalité des chances mesure le tort concret : une personne solvable injustement
+  refusée. Surtout, **appliquer un seuil différent selon le genre serait une
+  discrimination directe**, prohibée, là où une discrimination indirecte peut être
+  justifiée par un objectif légitime : corriger l'une par l'autre est
+  juridiquement régressif, quel que soit le gain sur les métriques.
+- **Garde-fou méthodologique :** figer les seuils avant la mesure interdit
+  l'ajustement rétrospectif, qui consiste à décréter acceptable ce que l'on a
+  obtenu.

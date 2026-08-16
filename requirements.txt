@@ -7,6 +7,8 @@ lightgbm>=4.3
 # Explicabilité et équité
 shap>=0.46
 fairlearn>=0.11
+# Lecture du contrat des variables sensibles (src/fairness/contract.py)
+pyyaml>=6.0
 
 # Suivi d'expériences
 mlflow>=2.14

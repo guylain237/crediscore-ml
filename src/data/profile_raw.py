@@ -79,8 +79,10 @@ def main(input_dir: Path, out_path: Path) -> None:
         "",
         f"- Taux de défaut (TARGET=1) : **{train['TARGET'].mean() * 100:.2f} %** "
         f"({int(train['TARGET'].sum()):,} défauts sur {len(train):,} dossiers)".replace(",", " "),
-        "- Classes fortement déséquilibrées : métriques AUC-PR + coût métier, "
-        "pondération `scale_pos_weight` à l'entraînement.",
+        (
+            "- Classes fortement déséquilibrées : métriques AUC-PR + coût métier, "
+            "pondération `scale_pos_weight` à l'entraînement."
+        ),
         "",
         "## Valeurs manquantes — top 10 par fichier",
         "",
