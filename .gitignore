@@ -25,6 +25,12 @@ models/*.txt
 models/*.joblib
 catboost_info/
 
+# Exports de documents — le Markdown de docs/ est la source de vérité.
+# Un .docx ou un .pdf versionné diverge du .md dès la première correction :
+# on exporte au moment du rendu, on ne stocke pas l'export.
+*.docx
+*.pdf
+
 # IDE / OS
 .vscode/
 .idea/

@@ -170,3 +170,38 @@ C'est la matière première des questions/réponses du jury.
 - **Garde-fou méthodologique :** figer les seuils avant la mesure interdit
   l'ajustement rétrospectif, qui consiste à décréter acceptable ce que l'on a
   obtenu.
+
+## D-011 — 25/08/2026 — Les « doublons » de `installments_payments` sont des paiements fractionnés
+
+- **Contexte :** avant d'écrire le premier job d'agrégation, mesure des doublons
+  sur les sept tables. Six sont parfaitement propres — zéro doublon de grain,
+  zéro ligne identique. La septième, `installments_payments`, en compte
+  **653 483**, soit 4,8 % de ses lignes. Et c'est la source la plus prédictive :
+  elle couvre 94,1 % des dossiers.
+- **Investigation :** trois hypothèses, vérifiées sur l'intégralité des
+  640 905 échéances concernées — montant dû identique sur toutes les lignes
+  d'une échéance (**100 %**), date d'échéance identique (**100 %**), et
+  **somme** des versements égale au montant dû (**99,96 %**).
+- **Conclusion :** ce ne sont pas des doublons. Une échéance unique est réglée
+  en plusieurs versements. Les supprimer aurait détruit de l'information ; les
+  traiter à la ligne fausse le calcul.
+- **Choix :** consolidation obligatoire avant toute dérivation —
+  `AMT_PAYMENT` sommé, `DAYS_ENTRY_PAYMENT` au maximum (date du solde),
+  `AMT_INSTALMENT` et `DAYS_INSTALMENT` inchangés. Le versement le plus élevé ne
+  suffirait pas : il ne couvre le montant dû que dans 35,6 % des cas.
+- **Ce que l'oubli aurait coûté, mesuré :**
+
+  | Variable | Sans consolidation | Avec consolidation |
+  |---|---|---|
+  | `TAUX_PAIEMENT` moyen | 0,4958 | 1,0014 |
+  | `RETARD_JOURS` moyen | −3,78 j (en avance) | +14,00 j (en retard) |
+  | Nombre d'échéances | 13 605 401 | 12 951 918 |
+
+- **Raison de fond :** le signe du retard s'inverse. Un client qui solde son
+  échéance avec quatorze jours de retard serait compté comme payant en avance,
+  et un client réglant l'intégralité de sa dette semblerait n'en payer que la
+  moitié. Le pipeline aurait tourné sans erreur, produit des variables
+  d'apparence normale, et entraîné le modèle sur un signal inversé.
+- **Portée :** c'est l'argument le plus concret en faveur d'une analyse
+  exploratoire menée **avant** l'écriture du code. Aucun test unitaire n'aurait
+  détecté ce défaut : le calcul était syntaxiquement correct.
