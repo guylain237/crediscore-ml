@@ -29,9 +29,66 @@ agrégation construite dessus mélangerait des choses distinctes.
 
 **Total des doublons de grain : 653 483**
 
+Tous se concentrent sur une seule table. La section suivante montre que
+ce ne sont **pas** des doublons.
+
 ---
 
-## 2. Distributions — les bornes du contrôle qualité
+## 2. Ce ne sont pas des doublons : ce sont des paiements fractionnés
+
+Une échéance unique peut être réglée en **plusieurs versements**. Trois
+hypothèses, vérifiées sur l'intégralité des cas :
+
+| Hypothèse | Vérifiée dans |
+|---|---|
+| Un seul montant dû par échéance | **100.00 %** |
+| Une seule date d'échéance | **100.00 %** |
+| La **somme** des versements couvre le montant dû | **99.96 %** |
+| *(le seul versement maximal suffirait dans)* | *35.56 %* |
+
+La quatrième ligne tranche la méthode : prendre le versement le plus
+élevé ne suffirait que dans un tiers des cas. **Il faut sommer.**
+
+### L'impact, chiffré
+
+Sur les échéances réglées en plusieurs fois :
+
+| Variable | Sans consolidation | Avec consolidation |
+|---|---|---|
+| `TAUX_PAIEMENT` moyen | 0.4958 | **1.0014** |
+| `RETARD_JOURS` moyen | -3.78 j | **+14.00 j** |
+| Nombre d'échéances | 13 605 401 | **12 951 918** |
+
+**Le signe du retard s'inverse.** Sans consolidation, ces clients
+paraissent payer *en avance* de près de 4 jours ; en réalité ils soldent
+leur échéance avec **14 jours de retard**. Et le taux de paiement moyen
+passe de 0,50 à 1,00 : un client qui paie l'intégralité de sa dette
+semblerait n'en régler que la moitié.
+
+Agréger sans consolider inverserait donc le signal de risque **sur la
+source la plus prédictive du modèle** — celle qui couvre 94,1 % des
+dossiers. C'est le défaut le plus coûteux que cette analyse ait évité.
+
+### La règle de consolidation à appliquer
+
+```
+grouper par (SK_ID_PREV, NUM_INSTALMENT_VERSION, NUM_INSTALMENT_NUMBER) :
+    AMT_INSTALMENT     = first  (identique sur toutes les lignes)
+    DAYS_INSTALMENT    = first  (identique)
+    AMT_PAYMENT        = SUM    (total réellement versé)
+    DAYS_ENTRY_PAYMENT = MAX    (date du dernier versement = solde)
+```
+
+**Deux pièges supplémentaires** dans cette même table :
+
+- `AMT_INSTALMENT = 0` : 290 lignes — division par zéro.
+- `AMT_PAYMENT` manquant : 2 905 lignes — l'échéance n'a **jamais** été payée.
+  Ce n'est pas une valeur à imputer : c'est un impayé, donc un signal de
+  risque à part entière (règle F5).
+
+---
+
+## 3. Distributions — les bornes du contrôle qualité
 
 Les quantiles 0,1 % et 99,9 % fondent les bornes : elles écartent
 l'aberration sans rejeter la queue légitime de la distribution.
@@ -55,7 +112,7 @@ l'aberration sans rejeter la queue légitime de la distribution.
 
 ---
 
-## 3. Pièges de calcul — les divisions à protéger
+## 4. Pièges de calcul — les divisions à protéger
 
 Chaque ligne est un `NaN` ou un `inf` qui entrerait silencieusement dans
 le feature store si le pipeline divisait naïvement.
@@ -75,7 +132,7 @@ le feature store si le pipeline divisait naïvement.
 
 ---
 
-## 4. Les vingt `FLAG_DOCUMENT_*`
+## 5. Les vingt `FLAG_DOCUMENT_*`
 
 Hypothèse de `plan_features.md` §2.4 : conserver `FLAG_DOCUMENT_3`
 isolément et remplacer les 19 autres par leur seule somme.
@@ -105,7 +162,7 @@ isolément et remplacer les 19 autres par leur seule somme.
 
 ---
 
-## 5. Variables catégorielles
+## 6. Variables catégorielles
 
 `XNA` et `XAP` sont les codes d'absence de ce jeu de données. Traités
 comme des modalités ordinaires, ils créeraient une catégorie « inconnu »
