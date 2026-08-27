@@ -42,6 +42,33 @@ génèrent les documents de `docs/`.
 | Divisions par zéro dans 5 des 7 ratios | Dénominateurs protégés |
 """)
 
+md("""
+---
+
+## D'où viennent ces données
+
+Le jeu de données existe en **deux exemplaires**, et ce notebook lit le premier :
+
+| Emplacement | Lu par | Rôle |
+|---|---|---|
+| `input/` — sur le poste | **ce notebook** et les trois scripts de `src/data/` | Analyse exploratoire |
+| `s3://crediscore-datalake-…/raw/` — sur AWS | le pipeline de production | Source de vérité |
+
+Ce sont les **mêmes huit fichiers**, déposés dans le data lake le 30/07/2026.
+
+L'analyse lit la copie locale parce qu'elle est instantanée, gratuite et
+utilisable hors connexion — télécharger 2,5 Gio à chaque itération n'aurait
+aucun sens. Le pipeline, lui, ne lit **que** S3 : c'est là que vit la donnée
+source, chiffrée, versionnée, et **inaccessible en écriture même à la machine
+qui la traite**.
+
+> **Limite assumée.** Les tailles des deux copies correspondent, mais une taille
+> identique n'est pas une preuve d'identité. Le pipeline enregistre pour cette
+> raison une empreinte du lot traité dans `feature_store.journal_publication`,
+> ce qui rattache chaque publication de variables aux données exactes dont elle
+> est issue.
+""")
+
 code("""
 from pathlib import Path
 
