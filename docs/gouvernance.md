@@ -308,10 +308,10 @@ propriétaire, un artefact et une date.
 | **C-3** | Détection de proxys par corrélation aux attributs protégés | `src/fairness/` | 📅 28/08 |
 | **C-4** | Mesures d'équité chiffrées par sous-population | `docs/note_equite.md` | 📅 28/08 |
 | **C-5** | Explicabilité SHAP globale et locale (< 1 s) | `src/explain/` | 📅 28/08 |
-| **C-6** | Contrôles qualité **bloquants** à l'ingestion | DAG Airflow | 📅 25/08 |
-| **C-7** | Pseudonymisation à l'ingestion | DAG Airflow | 📅 23/08 |
-| **C-8** | Chiffrement au repos et en transit | `infra/datalake.tf` (S3 ✅) · KMS, VM | ✅ 30/07 · 📅 17/08 |
-| **C-9** | IAM au moindre privilège | Identity Center ✅ · rôle applicatif | ✅ 29/07 · 📅 17/08 |
+| **C-6** | Contrôles qualité **bloquants** | `dag_ingestion_quotidienne.py` (sources) · `dag_construction_variables.py` (socle) | ✅ 29/08 — 3 + 4 contrôles, un échec bloque la publication |
+| **C-7** | Pseudonymisation des identifiants dans les journaux | `pipelines/spark_jobs/pseudonyme.py` | ✅ 30/08 |
+| **C-8** | Chiffrement au repos et en transit | `infra/datalake.tf` (S3) · `infra/compute.tf` (disque VM) | ✅ 30/07 · ✅ 22/08 |
+| **C-9** | IAM au moindre privilège | Identity Center · `infra/iam.tf` (2 rôles dérivés du contrat des zones) | ✅ 29/07 · ✅ 22/08 — écriture dans `raw/` refusée, vérifié le 29/08 |
 | **C-10** | Détection de dérive PSI/KS → réentraînement | DAG dérive | 📅 01/09 |
 | **C-11** | Reproductibilité : graine, verrous, hachage | `requirements.lock.txt` ✅ · `.terraform.lock.hcl` ✅ · MLflow | ✅ partiel · 📅 26/08 |
 | **C-12** | Procédure de contrôle humain (réexamen) | Documentée + tracée dans l'API | 📅 29/08 |
