@@ -1,0 +1,7 @@
+# Seuil de decision, calcule par src/models/seuil.py.
+# Ne pas modifier a la main : relancer le script apres tout
+# reentrainement, car le seuil depend du modele.
+seuil: 0.095
+calcule_le: 2026-08-31
+taux_acceptation: 0.6885
+taux_defaut_portefeuille: 0.0345

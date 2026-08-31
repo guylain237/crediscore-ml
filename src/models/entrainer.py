@@ -32,6 +32,7 @@ from sklearn.model_selection import train_test_split
 RACINE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RACINE / "src"))
 from fairness import contract
+from models import preparation
 
 # Le socle produit par le pipeline. En local il est dans donnees_pipeline ; sur
 # la VM, le meme fichier vit dans le data lake S3.
@@ -207,6 +208,15 @@ def main():
                 mlflow.log_metric(f"{jeu}_{nom}", valeur)
 
         mlflow.lightgbm.log_model(modele, name="modele")
+
+        # Le modele est aussi ecrit sur disque : le calcul du seuil et l'analyse
+        # SHAP le rechargent sans reentrainer. Le fichier est hors depot
+        # (.gitignore) — c'est un artefact, pas une source.
+        import joblib
+
+        preparation.MODELE.parent.mkdir(parents=True, exist_ok=True)
+        joblib.dump(modele, preparation.MODELE)
+        print(f"modele ecrit dans {preparation.MODELE.relative_to(RACINE)}")
 
         # Les vingt variables les plus utilisees par le modele. Un premier
         # regard avant l'analyse SHAP, qui viendra ensuite.
