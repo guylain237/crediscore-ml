@@ -167,6 +167,31 @@ temporaires via IAM Identity Center pour les opérateurs, rôles IAM pour les
 applications. L'identité applicative n'a accès qu'aux préfixes `curated/` en
 lecture et `audit/` en écriture — **jamais aux données brutes**.
 
+### P-10 — Traçabilité des scores fournis par des tiers
+
+Aucun score externe ne peut peser dans une décision sans que sa composition
+soit connue et attestée exempte d'attribut protégé.
+
+> **Cette politique naît d'une mesure, le 31/08/2026.** `EXT_SOURCE_1` est la
+> troisième variable du modèle au sens SHAP. Elle est corrélée à 0,600 avec
+> l'âge du demandeur : 0,332 en moyenne chez les 20-30 ans, 0,739 chez les
+> 60-70 ans. Nous avons exclu l'âge du modèle et un fournisseur nous le rend
+> dans un score dont nous ignorons la recette.
+>
+> Deux exigences s'en trouvent en défaut. L'AI Act impose qu'un système à haut
+> risque soit explicable : nous expliquons ici une décision par un score que
+> nous ne savons pas expliquer. Et la note d'équité interdit les proxys sans
+> justification autonome : celle du score externe est invérifiable par
+> construction.
+>
+> **Conséquence opérationnelle.** La mise en production est conditionnée à
+> l'obtention, auprès du fournisseur, de la liste des variables composant le
+> score et de l'attestation qu'aucun attribut protégé n'y figure. À défaut,
+> `EXT_SOURCE_1`, `EXT_SOURCE_2` et `EXT_SOURCE_3` sont retirées — au prix
+> d'une baisse de performance qu'il faudra alors mesurer. Le démonstrateur les
+> conserve délibérément : les retirer masquerait le problème au lieu de le
+> poser.
+
 ### P-9 — Maîtrise et sobriété des ressources
 
 Toute ressource facturée à l'heure est créée **exclusivement par Terraform**, et
@@ -305,9 +330,9 @@ propriétaire, un artefact et une date.
 |---|---|---|---|
 | **C-1** | Exclusion des variables sensibles, **bloquante** | `src/fairness/contract.py` · `tests/test_no_sensitive_features.py` · `.github/workflows/ci.yml` | ✅ **16/08** — 14 assertions, **exécutées à chaque `push`** |
 | **C-2** | Journal d'audit de chaque décision | API de scoring | 📅 29/08 |
-| **C-3** | Détection de proxys par corrélation aux attributs protégés | `src/fairness/` | 📅 28/08 |
-| **C-4** | Mesures d'équité chiffrées par sous-population | `docs/note_equite.md` | 📅 28/08 |
-| **C-5** | Explicabilité SHAP globale et locale (< 1 s) | `src/explain/` | 📅 28/08 |
+| **C-3** | Détection de proxys par corrélation aux attributs protégés | `src/fairness/proxys.py` · `docs/resultats_proxys.csv` | ✅ **31/08** — 223 variables × 3 attributs, valeur **et** motif d'absence · 5 proxys instruits, 1 retirée |
+| **C-4** | Mesures d'équité chiffrées par sous-population, **bloquante** | `src/fairness/audit.py` · `docs/note_equite.md` §8 · `docs/resultats_equite.csv` | ✅ **31/08** — M-1 à M-6 sur 3 axes · **a bloqué le déploiement** : M-1 = 0,3082 sur l'âge |
+| **C-5** | Explicabilité SHAP globale et locale (< 1 s) **et lisible** | `src/explain/expliquer.py` · `docs/shap_importance_globale.csv` | ✅ **31/08** — 24 ms/dossier · 150 variables montrables, toutes libellées en français |
 | **C-6** | Contrôles qualité **bloquants** | `dag_ingestion_quotidienne.py` (sources) · `dag_construction_variables.py` (socle) | ✅ 29/08 — 3 + 4 contrôles, un échec bloque la publication |
 | **C-7** | Pseudonymisation des identifiants dans les journaux | `pipelines/spark_jobs/pseudonyme.py` | ✅ 30/08 |
 | **C-8** | Chiffrement au repos et en transit | `infra/datalake.tf` (S3) · `infra/compute.tf` (disque VM) | ✅ 30/07 · ✅ 22/08 |
@@ -404,6 +429,7 @@ qu'on peut changer discrètement n'est pas une politique.**
 
 | Version | Date | Modification |
 |---|---|---|
+| 1.1 | 01/09/2026 | **C-3, C-4 et C-5 exécutés.** C-4 a bloqué le déploiement (M-1 = 0,3082 sur l'âge, seuil 0,05) ; dérogation motivée au §8.9 de la note d'équité. Nouvelle politique **P-10** — traçabilité des scores de tiers, née de la corrélation mesurée entre `EXT_SOURCE_1` et l'âge. |
 | 1.0 | 16/08/2026 | Création. Politiques P-1 à P-9, contrôles C-1 à C-12, registre art. 30, matrice de risques, procédures d'audit. Contrôle C-1 implémenté et testé le même jour. |
 
 ---

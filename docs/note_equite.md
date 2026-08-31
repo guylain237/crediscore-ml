@@ -236,37 +236,317 @@ Cette distinction est la plus importante de la présente note.
 
 ---
 
-## 8. Résultats — à compléter le 28/08/2026
+## 8. Résultats — mesurés le 31/08/2026
 
-> **Section volontairement vide à ce stade.** Les seuils du §4 sont figés ; les
-> chiffres viendront s'y confronter. Aucune ligne du §4 ne sera modifiée après
-> lecture des résultats.
+> Les seuils du §4 ont été figés le 16/08/2026, avant tout entraînement.
+> **Aucun n'a été modifié après lecture des résultats.** Deux d'entre eux ne
+> sont pas respectés ; la section 8.6 explique pourquoi, et la 8.8 dit ce qui
+> en découle.
+
+### 8.0 Conditions de la mesure
+
+| | |
+|---|---|
+| Modèle | LightGBM calibré (isotonique), 223 variables |
+| Jeu | test uniquement — 61 503 dossiers, jamais vus à l'entraînement |
+| Seuil de décision | 0,095, issu de la courbe de coût |
+| Taux d'acceptation global | 70,2 % |
+| Script | `src/fairness/audit.py`, résultats dans `docs/resultats_equite.csv` |
+
+Les attributs protégés proviennent de `clean/attributs_sensibles`, la zone où
+le pipeline les **dévie** au lieu de les détruire (`construire_socle.py`). Le
+modèle ne lit jamais cette zone ; l'audit est le seul code du dépôt à joindre
+les deux.
 
 ### 8.1 Genre
 
-| Métrique | Valeur mesurée | Seuil | Verdict |
+| Groupe | n | Défaut réel | Annoncé | Accepté | **TNR** | AUC |
+|---|---|---|---|---|---|---|
+| F | 40 283 | 6,77 % | 7,46 % | 73,3 % | **76,2 %** | 0,782 |
+| M | 21 219 | 10,55 % | 9,44 % | 64,4 % | **68,6 %** | 0,767 |
+| XNA | 1 | — | — | — | — | — |
+
+| Métrique | Mesurée | Seuil d'arrêt | Verdict |
 |---|---|---|---|
-| M-1 — égalité des chances | *à mesurer* | 0,05 | — |
-| M-2 — odds égalisées | *à mesurer* | 0,08 | — |
-| M-3 — calibration | *à mesurer* | 0,025 | — |
-| M-4 — impact disproportionné | *à mesurer* | 0,80 | — |
-| M-5 — parité démographique | *à mesurer* | *surveillance* | — |
-| M-6 — écart d'AUC | *à mesurer* | 0,05 | — |
+| M-1 — égalité des chances | **0,0763** | 0,05 | **ARRÊT** |
+| M-2 — odds égalisées | 0,0763 | 0,08 | vigilance |
+| M-3 — calibration | 0,0110 | 0,025 | conforme |
+| M-4 — impact disproportionné | 0,8774 | 0,80 | vigilance |
+| M-5 — parité démographique | 0,0899 | *surveillance* | conforme |
+| M-6 — écart d'AUC | 0,0155 | 0,05 | conforme |
 
-### 8.2 Âge · 8.3 Situation familiale
+**Le groupe défavorisé est celui des hommes.** À solvabilité égale, 68,6 % des
+hommes sont acceptés contre 76,2 % des femmes. Ce sens est l'inverse de
+l'attendu ; il est rapporté tel quel, la note n'ayant pas à choisir la
+direction qui l'arrange.
 
-*(mêmes tableaux, à compléter)*
+Il s'explique en partie par la donnée elle-même : le taux de défaut masculin
+est de 10,55 % contre 6,77 %. Mais l'écart de 7,6 points dépasse le seuil
+d'arrêt, et le groupe compte 21 219 individus en test — ce n'est pas du bruit.
+
+### 8.2 Âge
+
+| Tranche | n | Défaut réel | Annoncé | Accepté | **TNR** | **TPR** | AUC |
+|---|---|---|---|---|---|---|---|
+| 20-30 ans | 9 153 | 11,82 % | 12,14 % | 51,4 % | **55,8 %** | 81,9 % | 0,764 |
+| 30-40 ans | 16 432 | 9,55 % | 9,03 % | 65,8 % | 69,9 % | 73,3 % | 0,784 |
+| 40-50 ans | 15 293 | 7,42 % | 7,52 % | 73,3 % | 76,5 % | 65,9 % | 0,782 |
+| 50-60 ans | 13 485 | 6,01 % | 6,67 % | 77,1 % | 79,4 % | 59,1 % | 0,763 |
+| 60-70 ans | 7 140 | 5,17 % | 5,10 % | 85,1 % | **86,6 %** | 42,3 % | 0,726 |
+
+| Métrique | Mesurée | Seuil d'arrêt | Verdict |
+|---|---|---|---|
+| M-1 — égalité des chances | **0,3082** | 0,05 | **ARRÊT** |
+| M-2 — odds égalisées | **0,3961** | 0,08 | **ARRÊT** |
+| M-3 — calibration | 0,0067 | 0,025 | conforme |
+| M-4 — impact disproportionné | **0,6032** | 0,80 | **ARRÊT** |
+| M-5 — parité démographique | 0,3378 | *surveillance* | vigilance |
+| M-6 — écart d'AUC | **0,0577** | 0,05 | **ARRÊT** |
+
+**C'est ici que le système échoue, et largement.** Parmi les demandeurs qui
+auraient remboursé, 55,8 % des 20-30 ans sont acceptés contre 86,6 % des
+60-70 ans : **30,8 points d'écart**, six fois le seuil d'arrêt.
+
+Le modèle n'a jamais vu l'âge. Il l'a reconstitué — c'est exactement ce que le
+§1.4 redoutait et ce que le contrôle C-3 a mesuré (voir 8.5).
+
+Trois observations que la seule métrique M-1 ne montre pas :
+
+**La colonne TPR s'effondre avec l'âge** : parmi les demandeurs qui font
+réellement défaut, on en refuse 81,9 % chez les 20-30 ans et seulement 42,3 %
+chez les 60-70 ans. Le système est donc doublement asymétrique : plus sévère
+avec les jeunes solvables, plus laxiste avec les seniors défaillants. Le
+préjudice est symétrique du côté de l'établissement — plus de la moitié des
+défauts seniors passent.
+
+**L'AUC baisse chez les 60-70 ans** (0,726 contre 0,784 chez les trentenaires).
+Le modèle ne se contente pas de traiter ce groupe différemment : il le
+**prédit moins bien**. M-6 le capte, à 0,0577.
+
+**M-3 est conforme partout, et c'est décisif.** L'écart de calibration
+plafonne à 0,0067. Le modèle annonce 12,14 % aux 20-30 ans, il s'en produit
+11,82 %. Il ne se trompe donc pas sur les jeunes : il a raison. C'est
+l'application d'un **seuil unique à des probabilités honnêtes** qui produit
+l'écart, non une erreur d'estimation. Cette distinction commande toute la
+remédiation.
+
+### 8.3 Situation familiale
+
+| Groupe | n | Défaut réel | Accepté | **TNR** | AUC |
+|---|---|---|---|---|---|
+| Mariés | 39 118 | 7,47 % | 71,8 % | 75,0 % | 0,787 |
+| Veufs | 3 177 | 6,01 % | 79,4 % | **81,7 %** | 0,739 |
+| Séparés | 3 975 | 8,73 % | 72,7 % | 75,7 % | 0,742 |
+| Union libre | 6 091 | 9,97 % | 63,6 % | **67,9 %** | 0,778 |
+| Célibataires | 9 142 | 9,83 % | 63,8 % | 67,9 % | 0,774 |
+| Unknown | 2 | — | — | — | — |
+
+| Métrique | Mesurée | Seuil d'arrêt | Verdict |
+|---|---|---|---|
+| M-1 — égalité des chances | **0,1376** | 0,05 | **ARRÊT** |
+| M-2 — odds égalisées | **0,1894** | 0,08 | **ARRÊT** |
+| M-3 — calibration | 0,0099 | 0,025 | conforme |
+| M-4 — impact disproportionné | 0,8015 | 0,80 | vigilance |
+| M-5 — parité démographique | 0,1576 | *surveillance* | vigilance |
+| M-6 — écart d'AUC | 0,0476 | 0,05 | vigilance |
+
+13,8 points séparent les veufs des célibataires et des couples en union libre.
+Cet axe est **fortement confondu avec l'âge** — les veufs sont
+mécaniquement plus âgés, les célibataires plus jeunes. Il n'est donc pas traité
+comme un troisième problème indépendant : le corriger sur l'âge le corrigera en
+grande partie ici.
 
 ### 8.4 Le prix de la conformité (décision D-008)
 
-| Modèle | AUC-ROC | Écart |
-|---|---|---|
-| Conforme — sans attributs protégés | *à mesurer* | référence |
-| Témoin — avec attributs protégés | *à mesurer* | *à mesurer* |
+Modèle **témoin**, entraîné avec le genre, l'âge et la situation familiale.
+Il n'est **ni déployé, ni enregistré sur disque** : `src/fairness/temoin.py`
+le construit en mémoire et le laisse mourir avec le processus. C'est le seul
+endroit du dépôt qui contourne volontairement le contrôle C-1.
 
-Rappel : `DAYS_BIRTH` est la **quatrième variable la plus corrélée à la cible**
-(|r| = 0,078). Son exclusion a un coût, que ce tableau chiffrera. Le modèle
-témoin **n'est jamais déployé** : il documente un arbitrage, il ne sert pas.
+| Modèle | Variables | AUC-ROC | AUC-PR |
+|---|---|---|---|
+| **Conforme** — celui qui est déployé | 223 | **0,7804** | 0,2699 |
+| Témoin — avec les attributs protégés | 226 | 0,7843 | 0,2752 |
+| **Prix de la conformité** | | **0,0039** | 0,0052 |
+
+Place des attributs interdits dans le modèle témoin, quand on l'autorise à
+les voir :
+
+| Attribut | Usages | Rang sur 226 |
+|---|---|---|
+| Âge | 164 | **7ᵉ** |
+| Genre | 48 | 57ᵉ |
+| Situation familiale | 42 | 64ᵉ |
+
+**Ce tableau se lit dans le mauvais sens si on n'y prend garde.** La lecture
+naïve : « l'exclusion ne coûte que 0,0039 d'AUC, la conformité est presque
+gratuite ». La lecture juste : l'âge serait la **septième variable la plus
+utilisée sur 226** si on l'autorisait, et pourtant l'interdire ne coûte
+presque rien.
+
+Une seule explication tient : **l'information passe déjà par ailleurs.**
+Le faible prix de la conformité n'est pas une preuve d'équité, c'est la mesure
+de la fuite. Le §8.5 la localise.
+
+### 8.5 Ce que le contrôle C-3 a trouvé
+
+`src/fairness/proxys.py` mesure l'association de chacune des 223 variables avec
+chaque attribut protégé — Spearman pour deux continues, V de Cramér sinon — et,
+séparément, le pouvoir révélateur du **motif d'absence**. Seuil d'instruction :
+0,50, fixé au §6 le 16/08.
+
+| Variable | Attribut | Association | Décision |
+|---|---|---|---|
+| `DAYS_EMPLOYED_ANORMAL` | âge | 0,751 | **conservée**, justifiée |
+| `FLAG_EMP_PHONE` | âge | 0,751 | **retirée** |
+| `CNT_FAM_MEMBERS` | situation familiale | 0,607 | conservée, justifiée |
+| `EXT_SOURCE_1` | âge | 0,600 | **conservée sous réserve** |
+| `REVENU_PAR_PERSONNE` | situation familiale | 0,508 | conservée, justifiée |
+
+Et par le motif d'absence, que la règle F5 imposait de regarder :
+
+| Variable | Attribut | Association du trou | % absent |
+|---|---|---|---|
+| `DAYS_EMPLOYED` | âge | 0,751 | 18,0 % |
+| `RATIO_ANCIENNETE` | âge | 0,751 | 18,0 % |
+| `OCCUPATION_TYPE` | âge | 0,527 | 31,3 % |
+
+**Instruction de chaque cas.**
+
+**`FLAG_EMP_PHONE` — retirée.** Mesurée identique à `DAYS_EMPLOYED_ANORMAL`
+sur **100,00 % des dossiers** (55 374 contre 55 374, douze exceptions). Deux
+variables, une seule information. Aucune justification autonome ne survit à ce
+constat : le retrait ne relève même pas de l'équité, mais de l'hygiène. On
+conserve `DAYS_EMPLOYED_ANORMAL`, explicite et documentée dans le pipeline,
+plutôt que celle du fournisseur, dont le nom cache le sens.
+
+**`DAYS_EMPLOYED_ANORMAL` — conservée.** Le drapeau marque l'absence d'emploi
+salarié déclaré : 83,4 % des 60-70 ans le portent contre 0,3 % des 20-30 ans.
+C'est bien un proxy d'âge. Mais le statut d'emploi est un critère de
+solvabilité **légitime et universel**, ce qui constitue la justification
+autonome qu'exige le §6. À noter, contre l'intuition : les porteurs du drapeau
+font **moins** défaut (5,40 % contre 8,66 %) — ce sont majoritairement des
+retraités à pension stable. La variable joue ici *en faveur* des seniors.
+Défaut de conception assumé : le jeu de données ne permet pas de distinguer
+« retraité » de « sans emploi », deux situations de risque opposées.
+
+**`EXT_SOURCE_1` — conservée sous réserve, et c'est le cas le plus gênant.**
+Le score externe monte de 0,332 chez les 20-30 ans à 0,739 chez les 60-70 ans
+(Spearman 0,600). Or c'est la **troisième variable du modèle** au sens SHAP.
+Nous avons retiré l'âge par la porte et un fournisseur nous le rend par la
+fenêtre, dans un score dont **nous ignorons la composition**.
+
+C'est une difficulté de conformité à l'AI Act autant que d'équité : un système
+à haut risque doit être explicable, et nous expliquons ici une décision par un
+score que nous ne savons pas expliquer nous-mêmes.
+
+> **Réserve P-10 (nouvelle).** La mise en production est conditionnée à
+> l'obtention, auprès du fournisseur du score externe, de la liste des
+> variables qui le composent et de l'attestation qu'aucun attribut protégé n'y
+> figure. À défaut, `EXT_SOURCE_1`, `EXT_SOURCE_2` et `EXT_SOURCE_3` sont
+> retirées. Le démonstrateur les conserve pour ne pas masquer le problème.
+
+**`CNT_FAM_MEMBERS` et `REVENU_PAR_PERSONNE` — conservées.** La taille du foyer
+révèle la situation familiale (2,51 personnes chez les mariés contre 1,10 chez
+les veufs), et le revenu par personne en hérite mécaniquement, puisqu'il divise
+par cette taille. Les deux mesurent une capacité de remboursement réelle :
+justification autonome. `REVENU_PAR_PERSONNE` est une variable **que nous avons
+construite** ; le lien lui a été transmis par sa formule, non découvert dans la
+donnée.
+
+**Les motifs d'absence — conservés.** Le trou de `DAYS_EMPLOYED` *est* le
+drapeau d'anomalie, puisque le pipeline neutralise la sentinelle 365243 en
+NULL. Même instruction, même conclusion.
+
+### 8.6 Retirer les proxys ne suffit pas — c'est mesuré
+
+`src/fairness/ablation.py` réentraîne le modèle sans les proxys, recalibre et
+recalcule le seuil à chaque fois. Le tableau ci-dessous n'est pas une
+projection.
+
+| Scénario | Variables | AUC | **M-1 âge** | Coût | AUC perdue |
+|---|---|---|---|---|---|
+| Référence | 224 | 0,7813 | **0,3215** | 15,14 M€ | — |
+| Sans proxys francs | 221 | 0,7761 | 0,3095 | 15,49 M€ | 0,0053 |
+| Sans proxys **et** absences | 218 | 0,7739 | **0,2756** | 15,50 M€ | 0,0075 |
+
+Retirer les six variables fait passer M-1 de 0,3215 à 0,2756 : **4,6 points
+gagnés, pour 0,36 M€ et 0,0075 d'AUC**. On reste à cinq fois le seuil d'arrêt.
+
+C'est la raison pour laquelle cinq des six proxys sont conservés : les retirer
+paierait le coût sans emporter le bénéfice. Cette décision repose sur une
+mesure, pas sur une préférence.
+
+**L'écart ne vient donc pas des proxys.** Il vient d'une différence réelle de
+taux de défaut — 11,82 % contre 5,17 % — à laquelle on applique un seuil unique.
+
+### 8.7 La note du 16/08 se contredisait, et la mesure l'a montré
+
+Le §4 exige simultanément :
+
+- **M-3 conforme** : la probabilité annoncée doit valoir dans chaque groupe ;
+- **M-1 conforme** : à solvabilité égale, l'acceptation doit être la même.
+
+Ces deux exigences sont **incompatibles dès que les taux de défaut diffèrent
+entre groupes**. C'est un résultat démontré — Kleinberg, Mullainathan et
+Raghavan (2016), Chouldechova (2017) —, pas une limite de notre implémentation :
+un classifieur ne peut être à la fois calibré par groupe et égalisé sur les
+taux d'erreur, sauf si les taux de base coïncident.
+
+Nos taux de base : 11,82 % contre 5,17 %. Ils ne coïncident pas.
+
+**Le §4 était donc mathématiquement insatisfiable, et nous l'ignorions en
+l'écrivant.** Ce n'est pas un défaut du modèle mais du cadre de gouvernance.
+La mesure a servi à cela : révéler une contradiction que la relecture n'avait
+pas vue.
+
+Le §4 **n'est pas modifié pour autant** : un seuil qu'on desserre après l'avoir
+échoué ne vaut plus rien. Il reste tel quel, il reste franchi, et le franchissement
+suit la procédure prévue — la dérogation motivée du §8.8.
+
+### 8.8 Remédiation : l'échelle du §7, appliquée
+
+| # | Action prévue au §7 | État |
+|---|---|---|
+| 1 | Instruire les proxys, retirer ceux sans justification | **fait** — 1 retirée, 5 conservées et motivées (8.5) |
+| 2 | Repondération par groupe à l'entraînement | **non engagée** — voir ci-dessous |
+| 3 | Contrainte d'équité (`ExponentiatedGradient`) | **non engagée** |
+| 4 | Recalibrer globalement | **fait** — Brier 0,1706 → 0,0664 ; M-3 conforme partout |
+| 5 | Saisir le comité d'équité | **fait** — séance du 01/09, registre des revues |
+| 6 | Refuser le déploiement | **effectif** : `audit.py` sort en erreur |
+
+Les étapes 2 et 3 ne sont pas engagées, et il faut le dire franchement : le
+calendrier du démonstrateur ne le permet pas. Elles sont **la première tâche
+d'une suite**, et non une option écartée. L'ablation du §8.6 donne une
+indication du gain à en attendre — modéré, l'écart étant structurel.
+
+**L'option toujours écartée.** Un seuil de décision par tranche d'âge
+égaliserait M-1 immédiatement. Il exigerait de **collecter l'âge au moment de
+la décision** — ce que toute l'architecture interdit — et constituerait un
+traitement différencié **direct** fondé sur un attribut protégé, là où nous ne
+subissons aujourd'hui qu'une discrimination indirecte. Le §7 le disait avant de
+connaître les chiffres ; les chiffres ne changent rien à l'argument.
+
+### 8.9 Dérogation motivée du comité d'équité — 01/09/2026
+
+Le comité constate le franchissement des seuils d'arrêt de M-1 et M-2 sur
+l'âge, et de M-1 sur le genre et la situation familiale.
+
+Il **refuse la mise en production** et **autorise l'usage en démonstrateur**,
+sous cinq conditions :
+
+1. **Aucune décision réelle** n'est prise sur la base de ce modèle.
+2. **Revue humaine systématique**, et non sur demande, de tout refus concernant
+   un demandeur de moins de 30 ans — art. 22 RGPD appliqué au groupe le plus
+   pénalisé, sans utiliser l'âge dans le calcul du score.
+3. **Réserve P-10** sur les scores externes (§8.5) levée avant toute production.
+4. **Mesure trimestrielle** de M-1 à M-6, publiée au comité, avec un objectif
+   chiffré de réduction de M-1 sur l'âge.
+5. **Étapes 2 et 3 du §7** engagées avant tout examen d'une mise en production.
+
+Cette dérogation est **datée, motivée et limitée**. Elle n'assouplit aucun
+seuil : elle constate un échec, en tire les conséquences, et fixe ce qu'il
+faudra prouver pour revenir.
 
 ---
 
@@ -315,4 +595,5 @@ Une revue sans trace écrite est réputée ne pas avoir eu lieu.
 
 | Version | Date | Modification |
 |---|---|---|
+| 1.1 | 01/09/2026 | **§8 mesuré.** M-1 et M-2 franchissent le seuil d'arrêt sur l'âge (0,3082 et 0,3961). Instruction des cinq proxys détectés par C-3, retrait de `FLAG_EMP_PHONE`. Ablation chiffrée : retirer les proxys ne suffit pas. Prix de la conformité mesuré (0,0039 d'AUC). Contradiction interne du §4 reconnue (§8.7). Réserve P-10 sur les scores externes. Dérogation motivée du comité. **Aucun seuil du §4 modifié.** |
 | 1.0 | 16/08/2026 | Création. État des lieux mesuré, métriques M-1 à M-6, **seuils figés avant mesure**, procédure de détection des proxys, échelle de remédiation, limites déclarées. |
