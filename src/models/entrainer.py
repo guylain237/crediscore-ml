@@ -25,13 +25,10 @@ from pathlib import Path
 import lightgbm as lgb
 import mlflow
 import pandas as pd
-import yaml
 from sklearn.metrics import average_precision_score, roc_auc_score
-from sklearn.model_selection import train_test_split
 
 RACINE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RACINE / "src"))
-from fairness import contract
 from models import preparation
 
 # Le socle produit par le pipeline. En local il est dans donnees_pipeline ; sur
@@ -43,73 +40,15 @@ SOCLE = RACINE.parent / "donnees_pipeline" / "curated" / "socle_complet"
 NON_VARIABLES = ["SK_ID_CURR", "TARGET", "EST_ANNOTE"]
 
 
-def charger_configuration():
-    chemin = RACINE / "configs" / "entrainement.yaml"
-    return yaml.safe_load(chemin.read_text(encoding="utf-8"))
-
-
-def charger_socle():
-    """Lit le socle et ne garde que les dossiers dont on connait l'issue."""
-    socle = pd.read_parquet(SOCLE)
-    print(f"  socle complet : {len(socle):,} dossiers".replace(",", " "))
-
-    annotes = socle[socle.EST_ANNOTE == 1].copy()
-    print(f"  dossiers annotes : {len(annotes):,}".replace(",", " "))
-    print(f"  taux de defaut : {annotes.TARGET.mean() * 100:.2f} %")
-    return annotes
-
-
-def preparer_variables(donnees):
-    """Separe les variables de la cible, et type les categorielles.
-
-    LightGBM sait traiter les variables categorielles nativement, a condition
-    qu'elles soient declarees comme telles. C'est preferable a un encodage
-    one-hot : celui-ci creerait des centaines de colonnes creuses sur des
-    variables comme ORGANIZATION_TYPE, qui compte 58 modalites.
-    """
-    cible = donnees["TARGET"].astype(int)
-    variables = donnees.drop(columns=NON_VARIABLES)
-
-    # CONTROLE C-1, troisieme barriere. Le pipeline a deja devie les attributs
-    # sensibles et la base les refuse au registre ; on verifie une derniere fois
-    # avant d'entrainer. Une regle qui n'est verifiee qu'une fois n'est verifiee
-    # que la ou on y a pense.
-    contract.exiger_conformite(variables.columns)
-    print(f"  controle C-1 : aucune variable sensible parmi {len(variables.columns)}")
-
-    categorielles = variables.select_dtypes(include="object").columns
-    for colonne in categorielles:
-        variables[colonne] = variables[colonne].astype("category")
-    print(f"  {len(categorielles)} variables categorielles, {len(variables.columns) - len(categorielles)} numeriques")
-
-    return variables, cible
-
-
-def decouper(variables, cible, config):
-    """Decoupage 60 / 20 / 20, stratifie sur la cible."""
-    graine = config["graine"]
-    part_test = config["decoupage"]["part_test"]
-    part_validation = config["decoupage"]["part_validation"]
-
-    # Premier decoupage : on met le jeu de test de cote. Il ne sera utilise
-    # qu'une seule fois, tout a la fin. S'en servir pour choisir quoi que ce
-    # soit reviendrait a s'auto-evaluer.
-    x_reste, x_test, y_reste, y_test = train_test_split(
-        variables, cible, test_size=part_test, stratify=cible, random_state=graine
-    )
-
-    # Second decoupage : la validation est prelevee sur ce qui reste. La part
-    # est recalculee pour que le resultat final soit bien 60/20/20 du total.
-    part_relative = part_validation / (1 - part_test)
-    x_train, x_valid, y_train, y_valid = train_test_split(
-        x_reste, y_reste, test_size=part_relative, stratify=y_reste, random_state=graine
-    )
-
-    for nom, y in [("entrainement", y_train), ("validation", y_valid), ("test", y_test)]:
-        print(f"  {nom:<13} {len(y):>7,} dossiers, {y.mean() * 100:.2f} % de defauts".replace(",", " "))
-
-    return x_train, x_valid, x_test, y_train, y_valid, y_test
-
+# Le chargement, le controle C-1 et le decoupage vivent dans preparation.py.
+#
+# Ces fonctions etaient dupliquees ici. La duplication a ete decouverte le
+# 31/08/2026 en retirant FLAG_EMP_PHONE : la copie locale ignorait le retrait
+# et s'entrainait sur 224 variables pendant que calibrer.py et seuil.py en
+# voyaient 223. LightGBM a refuse de predire. L'erreur a rendu visible une
+# divergence qui, sur un changement plus discret, serait passee inapercue.
+#
+# Une regle partagee par plusieurs scripts doit vivre a un seul endroit.
 
 def empreinte_decoupage(x_train, x_valid, x_test):
     """Empreinte des indices des trois jeux.
@@ -161,16 +100,9 @@ def evaluer(modele, variables, cible, nom):
 
 
 def main():
-    config = charger_configuration()
-
-    print("Chargement du socle")
-    annotes = charger_socle()
-
-    print("\nPreparation des variables")
-    variables, cible = preparer_variables(annotes)
-
-    print("\nDecoupage 60 / 20 / 20")
-    x_train, x_valid, x_test, y_train, y_valid, y_test = decouper(variables, cible, config)
+    print("Chargement du socle, preparation et decoupage")
+    config, _, variables, _, jeux = preparation.tout_charger()
+    x_train, x_valid, x_test, y_train, y_valid, y_test = jeux
     empreinte = empreinte_decoupage(x_train, x_valid, x_test)
     print(f"  empreinte du decoupage : {empreinte}")
 

@@ -4,6 +4,12 @@
 /input/
 /data/
 *.csv
+
+# Exception : les resultats d'audit de docs/ sont des livrables, pas des
+# donnees. Ce sont eux qui portent les chiffres d'equite et d'explicabilite
+# presentes au jury ; les exclure reviendrait a ne versionner que le code qui
+# les produit, sans jamais ce qu'il a produit.
+!docs/*.csv
 *.zip
 *.parquet
 

@@ -29,6 +29,24 @@ MODELE_CALIBRE = RACINE / "models" / "modele_calibre.pkl"
 
 NON_VARIABLES = ["SK_ID_CURR", "TARGET", "EST_ANNOTE"]
 
+# Variables retirees a l'issue de la revue des proxys du 31/08/2026
+# (controle C-3, docs/note_equite.md §6). Ce n'est pas une liste technique :
+# chaque retrait a ete instruit et motive par ecrit.
+#
+# FLAG_EMP_PHONE : le demandeur a-t-il fourni un telephone d'employeur.
+#   Mesuree identique a DAYS_EMPLOYED_ANORMAL sur 100,00 % des dossiers
+#   (55 374 contre 55 374, douze exceptions). Les deux disent la meme chose :
+#   ce demandeur n'a pas d'employeur. Garder les deux dedouble le poids de ce
+#   signal et eclate arbitrairement son attribution SHAP entre elles.
+#   On conserve DAYS_EMPLOYED_ANORMAL, explicite et documentee dans le
+#   pipeline, plutot que celle du fournisseur, dont le nom cache le sens.
+#
+# Les cinq autres proxys detectes par C-3 sont CONSERVES : ils ont une
+# justification metier autonome, et l'ablation du 31/08 a mesure que les
+# retirer tous ne ramenerait M-1 qu'a 0,2756 — toujours cinq fois au-dessus
+# du seuil d'arret. Le cout serait donc paye sans le benefice.
+VARIABLES_RETIREES_C3 = ["FLAG_EMP_PHONE"]
+
 
 def charger_configuration():
     chemin = RACINE / "configs" / "entrainement.yaml"
@@ -49,6 +67,12 @@ def preparer_variables(donnees, silencieux=False):
     """Separe les variables de la cible, et type les categorielles."""
     cible = donnees["TARGET"].astype(int)
     variables = donnees.drop(columns=NON_VARIABLES)
+
+    retirees = [v for v in VARIABLES_RETIREES_C3 if v in variables.columns]
+    if retirees:
+        variables = variables.drop(columns=retirees)
+        if not silencieux:
+            print(f"  revue des proxys C-3 : {', '.join(retirees)} retiree(s)")
 
     # Controle C-1 : aucune variable sensible ne doit atteindre le modele.
     contract.exiger_conformite(variables.columns)

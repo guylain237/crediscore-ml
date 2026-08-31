@@ -105,11 +105,130 @@ LIBELLES = {
     "POS_MENSUALITES_RESTANTES": "mensualites restant a payer",
     "INSTAL_RETARD_JOURS_SUM": "cumul des jours de retard",
     "INSTAL_NB_RETARDS": "nombre d'echeances payees en retard",
+    "INSTAL_NB_JAMAIS_PAYEES": "echeances jamais payees",
     "BUREAU_NB_CREDITS": "nombre de credits chez d'autres etablissements",
     "BUREAU_PLAFOND_SUM": "plafonds accordes par d'autres etablissements",
     "PREV_AMT_CREDIT_MEAN": "montant moyen des credits anterieurs",
     "POS_NB_ACTIFS": "credits en cours",
     "CC_SOLDE_MEAN": "solde moyen de la carte de credit",
+
+    # Ajoutes le 31/08/2026 : ces 71 variables apparaissaient dans les cinq
+    # motifs d'au moins un dossier sur les 5 000 examines. Sans libelle, un
+    # demandeur aurait recu son motif de refus en jargon technique.
+    "AMT_GOODS_PRICE": "prix du bien finance",
+    "AMT_REQ_CREDIT_BUREAU_WEEK": "interrogations du bureau de credit dans la semaine",
+    "CNT_FAM_MEMBERS": "nombre de personnes dans le foyer",
+    "DAYS_ID_PUBLISH": "anciennete de la piece d'identite",
+    "DAYS_LAST_PHONE_CHANGE": "anciennete du dernier changement de telephone",
+    "DEF_30_CNT_SOCIAL_CIRCLE": "proches ayant eu 30 jours de retard",
+    "DEF_60_CNT_SOCIAL_CIRCLE": "proches ayant eu 60 jours de retard",
+    "FLAG_DOCUMENT_3": "fourniture du document 3",
+    "FLAG_WORK_PHONE": "telephone professionnel fourni",
+    "NAME_HOUSING_TYPE": "type de logement",
+    "NAME_TYPE_SUITE": "accompagnant lors de la demande",
+    "OWN_CAR_AGE": "age du vehicule",
+    "REGION_POPULATION_RELATIVE": "densite de population de la region",
+    "REGION_RATING_CLIENT_W_CITY": "note de la region de residence",
+    "REG_CITY_NOT_LIVE_CITY": "adresse declaree differente de la residence",
+    "WEEKDAY_APPR_PROCESS_START": "jour de la semaine de la demande",
+    "APARTMENTS_MEDI": "surface des appartements de l'immeuble (mediane)",
+    "APARTMENTS_MODE": "surface des appartements de l'immeuble (mode)",
+    "BASEMENTAREA_MODE": "surface des sous-sols de l'immeuble",
+    "COMMONAREA_AVG": "surface des parties communes",
+    "ELEVATORS_MEDI": "nombre d'ascenseurs de l'immeuble",
+    "LIVINGAREA_MEDI": "surface habitable",
+    "NONLIVINGAPARTMENTS_MEDI": "locaux non habitables de l'immeuble (mediane)",
+    "NONLIVINGAPARTMENTS_MODE": "locaux non habitables de l'immeuble (mode)",
+    "TOTALAREA_MODE": "surface totale de l'immeuble",
+    "YEARS_BEGINEXPLUATATION_MODE": "annee de mise en service de l'immeuble",
+    "BB_NB_MOIS": "mois d'historique detaille des credits exterieurs",
+    "BB_PART_CLOS": "part des mois ou le credit exterieur etait solde",
+    "BUREAU_ANNUITE_SUM": "total des mensualites chez d'autres etablissements",
+    "BUREAU_DETTE_MAX": "dette la plus elevee chez un autre etablissement",
+    "BUREAU_DETTE_MEAN": "dette moyenne chez les autres etablissements",
+    "BUREAU_DUREE_HISTORIQUE_JOURS": "anciennete de l'historique exterieur",
+    "BUREAU_IMPAYE_HISTORIQUE_MAX": "impaye le plus eleve de tout l'historique exterieur",
+    "BUREAU_IMPAYE_MAX": "impaye courant le plus eleve",
+    "BUREAU_IMPAYE_SUM": "total des impayes courants",
+    "BUREAU_JOURS_FIN_MAX": "echeance la plus lointaine des credits exterieurs",
+    "BUREAU_JOURS_MAJ_RECENTE": "anciennete de la derniere mise a jour du bureau",
+    "BUREAU_PART_CLOS": "part des credits exterieurs deja soldes",
+    "BUREAU_PART_VENDUS": "part des credits exterieurs cedes a un tiers",
+    "BUREAU_PLAFOND_MAX": "plafond le plus eleve accorde ailleurs",
+    "CC_MONTANT_RETRAITS_ESPECES": "montant retire en especes sur la carte",
+    "CC_NB_MOIS": "mois d'historique de carte de credit",
+    "CC_NB_OPERATIONS": "nombre d'operations sur la carte",
+    "CC_NB_RETRAITS_ESPECES": "nombre de retraits en especes",
+    "CC_PART_RETRAITS_ESPECES": "part des retraits en especes dans l'usage de la carte",
+    "CC_PLAFOND_SUM": "total des plafonds de carte",
+    "CC_TAUX_UTILISATION_12M": "taux d'utilisation de la carte sur douze mois",
+    "INSTAL_MONTANT_DU_SUM": "total du a l'echeancier",
+    "INSTAL_MONTANT_PAYE_SUM": "total effectivement paye",
+    "INSTAL_NB_CREDITS": "nombre de credits anterieurs avec echeancier",
+    "INSTAL_NB_ECHEANCES_12M": "echeances sur les douze derniers mois",
+    "INSTAL_RETARD_JOURS_STD": "irregularite des retards de paiement",
+    "POS_DERNIER_MOIS": "anciennete du dernier point de situation",
+    "POS_DPD_DEF_MAX": "retard grave maximal constate",
+    "POS_DPD_DEF_MEAN": "retard grave moyen",
+    "POS_NB_MOIS": "mois d'historique de credit a la consommation",
+    "POS_NB_TERMINES": "credits a la consommation menes a terme",
+    "POS_PART_MOIS_RETARD_GRAVE": "part des mois passes en retard grave",
+    "PREV_AMT_ANNUITY_MAX": "mensualite la plus elevee des demandes anterieures",
+    "PREV_AMT_ANNUITY_MEAN": "mensualite moyenne des demandes anterieures",
+    "PREV_AMT_DOWN_PAYMENT_MEAN": "apport moyen des demandes anterieures",
+    "PREV_CNT_PAYMENT_MAX": "duree la plus longue accordee par le passe",
+    "PREV_CNT_PAYMENT_MEAN": "duree moyenne des credits anterieurs",
+    "PREV_JOURS_DERNIERE_DEMANDE": "anciennete de la derniere demande",
+    "PREV_JOURS_PREMIERE_DEMANDE": "anciennete de la premiere demande",
+    "PREV_NB_REFUSEES": "nombre de demandes anterieures refusees",
+    "PREV_PART_ACCEPTEES": "part des demandes anterieures acceptees",
+    "PREV_PART_ACCORDEE_MIN": "part la plus faible du montant demande qui a ete accordee",
+    "PREV_PART_CONSO": "part des credits a la consommation dans l'historique",
+    "PREV_PART_RENOUVELABLE": "part des credits renouvelables dans l'historique",
+    "PREV_RATE_DOWN_PAYMENT_MEAN": "taux d'apport moyen des demandes anterieures",
+
+    # Completes apres mesure sur les 61 503 dossiers de test : ces 40
+    # variables atteignaient le haut du classement d'au moins un dossier.
+    "AMT_REQ_CREDIT_BUREAU_QRT": "interrogations du bureau de credit dans le trimestre",
+    "HOUR_APPR_PROCESS_START": "heure de depot de la demande",
+    "OBS_30_CNT_SOCIAL_CIRCLE": "proches observes a 30 jours de retard",
+    "REGION_RATING_CLIENT": "note de la region du demandeur",
+    "APARTMENTS_AVG": "surface des appartements de l'immeuble (moyenne)",
+    "BASEMENTAREA_AVG": "surface des sous-sols (moyenne)",
+    "BASEMENTAREA_MEDI": "surface des sous-sols (mediane)",
+    "COMMONAREA_MEDI": "surface des parties communes (mediane)",
+    "ELEVATORS_MODE": "nombre d'ascenseurs (mode)",
+    "ENTRANCES_AVG": "nombre d'entrees de l'immeuble (moyenne)",
+    "ENTRANCES_MEDI": "nombre d'entrees de l'immeuble (mediane)",
+    "ENTRANCES_MODE": "nombre d'entrees de l'immeuble (mode)",
+    "FLOORSMAX_MEDI": "nombre d'etages de l'immeuble (mediane)",
+    "FLOORSMIN_MEDI": "nombre minimal d'etages (mediane)",
+    "FLOORSMIN_MODE": "nombre minimal d'etages (mode)",
+    "LANDAREA_AVG": "surface du terrain (moyenne)",
+    "LANDAREA_MODE": "surface du terrain (mode)",
+    "LIVINGAPARTMENTS_AVG": "logements habitables de l'immeuble (moyenne)",
+    "LIVINGAPARTMENTS_MODE": "logements habitables de l'immeuble (mode)",
+    "LIVINGAREA_AVG": "surface habitable (moyenne)",
+    "NONLIVINGAPARTMENTS_AVG": "locaux non habitables (moyenne)",
+    "NONLIVINGAREA_AVG": "surface non habitable (moyenne)",
+    "NONLIVINGAREA_MEDI": "surface non habitable (mediane)",
+    "WALLSMATERIAL_MODE": "materiau des murs de l'immeuble",
+    "YEARS_BEGINEXPLUATATION_MEDI": "annee de mise en service (mediane)",
+    "YEARS_BUILD_AVG": "annee de construction de l'immeuble",
+    "BB_NB_MOIS_RETARD": "mois de retard sur les credits exterieurs",
+    "BB_PART_MOIS_RETARD": "part des mois passes en retard a l'exterieur",
+    "BUREAU_ANNUITE_MEAN": "mensualite moyenne chez les autres etablissements",
+    "BUREAU_JOURS_CREDIT_ANCIEN": "anciennete du plus vieux credit exterieur",
+    "BUREAU_PART_ACTIFS": "part des credits exterieurs encore actifs",
+    "POS_DPD_MEAN": "retard moyen sur les credits a la consommation",
+    "POS_NB_CREDITS": "nombre de credits a la consommation suivis",
+    "PREV_AMT_APPLICATION_MAX": "montant le plus eleve demande par le passe",
+    "PREV_AMT_APPLICATION_MEAN": "montant moyen demande par le passe",
+    "PREV_AMT_CREDIT_MAX": "montant le plus eleve accorde par le passe",
+    "PREV_DUREE_RELATION_JOURS": "anciennete de la relation avec l'etablissement",
+    "PREV_PART_ANNULEES": "part des demandes anterieures annulees",
+    "PREV_PART_NON_UTILISEES": "part des credits accordes mais non utilises",
+    "PREV_PART_TRESORERIE": "part des credits de tresorerie dans l'historique",
 }
 
 
@@ -202,6 +321,18 @@ def expliquer_dossier(explicateur, variables, index, combien=FACTEURS_PAR_DOSSIE
     return facteurs
 
 
+
+def variables_montrees(valeurs, variables, combien=FACTEURS_PAR_DOSSIER):
+    """Variables qui atteignent le haut du classement d'au moins un dossier.
+
+    Ce sont exactement celles qu'un demandeur peut voir ecrites sur sa
+    notification. Le reste du modele reste technique et n'a pas besoin
+    d'etre traduit.
+    """
+    rangs = np.argsort(-valeurs, axis=1)[:, :combien]
+    noms = variables.columns.to_numpy()
+    return sorted(set(noms[rangs.ravel()]))
+
 def main():
     print("Chargement des donnees")
     _, _, _, _, jeux = preparation.tout_charger(silencieux=True)
@@ -228,6 +359,28 @@ def main():
     tracer_global(importances, graphique)
     importances.to_csv(RACINE / "docs" / "shap_importance_globale.csv", index=False)
     print(f"\nGraphique ecrit dans {graphique.relative_to(RACINE)}")
+
+    # EXIGENCE C-5, deuxieme volet : un motif doit etre LISIBLE.
+    #
+    # Mesurer 24 ms ne sert a rien si le demandeur recoit
+    # "POS_PART_MOIS_RETARD_GRAVE" comme motif de refus. On verifie donc que
+    # toute variable susceptible d'apparaitre dans les motifs d'un dossier a
+    # bien un libelle en francais.
+    #
+    # On ne verifie pas les 223 variables du modele : seules comptent celles
+    # qui atteignent reellement le haut d'un classement individuel.
+    montrables = variables_montrees(valeurs, echantillon)
+    sans_libelle = [v for v in montrables if v not in LIBELLES]
+    print()
+    print("Lisibilite des motifs (exigence C-5)")
+    print(f"  {len(montrables)} variables peuvent apparaitre dans les motifs")
+    if sans_libelle:
+        print(f"  {len(sans_libelle)} sans libelle : {', '.join(sans_libelle[:5])}")
+        raise SystemExit(
+            f"ECHEC C-5 : {len(sans_libelle)} variable(s) seraient presentees a "
+            f"un demandeur sous leur nom technique. Completez LIBELLES."
+        )
+    print("  toutes libellees en francais - CONFORME")
 
     # EXIGENCE C-5 : moins d'une seconde pour expliquer un dossier.
     #

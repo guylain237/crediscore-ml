@@ -3,5 +3,5 @@
 # reentrainement, car le seuil depend du modele.
 seuil: 0.095
 calcule_le: 2026-08-31
-taux_acceptation: 0.6885
-taux_defaut_portefeuille: 0.0345
+taux_acceptation: 0.7024
+taux_defaut_portefeuille: 0.0358
