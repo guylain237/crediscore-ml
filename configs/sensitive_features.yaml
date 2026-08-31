@@ -17,6 +17,24 @@ audit_only_features:
   - CODE_GENDER
   - DAYS_BIRTH
 
+# Exceptions examinees et accordees.
+#
+# Le controle detecte les derivations par le nom : une variable finissant par
+# _AGE est presumee derivee de l'age du demandeur. C'est volontairement large,
+# quitte a produire des faux positifs — mieux vaut examiner une variable de
+# trop qu'en laisser passer une.
+#
+# Chaque exception exige un motif ecrit et une date. Le controle affiche celles
+# qu'il applique : une exception ne passe jamais en silence.
+exceptions:
+  - variable: OWN_CAR_AGE
+    motif: >
+      Age du VEHICULE du demandeur, en annees, et non age de la personne. Ne
+      derive ni de DAYS_BIRTH ni d'aucun attribut protege. Le controle s'est
+      declenche sur le suffixe _AGE.
+    date: 2026-08-31
+    decide_par: comite d'equite
+
 notes: >
   Toute nouvelle variable dérivée d'une variable sensible (ex. tranche d'âge)
   doit être ajoutée à sensitive_features avant d'être introduite dans le

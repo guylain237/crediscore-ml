@@ -1,0 +1,60 @@
+# Parametres d'entrainement du modele.
+#
+# Tout ce qui influence un resultat est ici, et nulle part ailleurs. Un
+# parametre ecrit en dur dans le code ne se retrouve pas au moment de comprendre
+# pourquoi deux entrainements ne donnent pas la meme chose.
+
+# Graine aleatoire unique du projet.
+#
+# Elle sert au decoupage des jeux ET a l'entrainement. Ne jamais la redefinir
+# localement : c'est ce qui permet de rejouer a l'identique une experience
+# presentee au jury (strategie_decoupage.md section 5).
+graine: 42
+
+# Decoupage 60 / 20 / 20, aleatoire stratifie sur la cible.
+#
+# Stratifie parce que la cible ne represente que 8,07 % : un tirage simple
+# ferait varier ce taux d'un jeu a l'autre, et les scores deviendraient
+# incomparables.
+decoupage:
+  part_validation: 0.20
+  part_test: 0.20
+
+# Cout metier des deux erreurs possibles, en euros par dossier.
+#
+# C'est l'asymetrie qui compte, pas les montants absolus. Un defaut non detecte
+# fait perdre le capital pret ; un bon client refuse ne coute qu'une marge non
+# realisee. Le rapport retenu est de 10 pour 1.
+#
+# Ces valeurs viennent de la direction des risques dans le scenario du projet.
+# Elles serviront a choisir le seuil de decision, pas a entrainer le modele.
+cout:
+  faux_negatif: 5000   # defaut accorde : capital perdu
+  faux_positif: 500    # bon client refuse : marge perdue
+
+# Hyperparametres LightGBM.
+#
+# Volontairement modestes : sur donnees tabulaires desequilibrees, un modele
+# trop profond apprend le bruit de la classe rare. On prefere un modele
+# regularise, quitte a perdre un peu d'AUC — il generalisera mieux et restera
+# explicable.
+lightgbm:
+  objective: binary
+  metric: average_precision   # AUC-PR, adaptee au desequilibre
+  learning_rate: 0.05
+  num_leaves: 31
+  max_depth: 7
+  min_child_samples: 100
+  subsample: 0.8
+  subsample_freq: 1
+  colsample_bytree: 0.8
+  reg_alpha: 0.1
+  reg_lambda: 0.1
+  n_estimators: 2000
+  # L'arret anticipe evite de fixer arbitrairement le nombre d'arbres : on
+  # s'arrete quand la validation cesse de progresser.
+  early_stopping_rounds: 100
+
+# Objectif de performance, pour situer le resultat.
+# La litterature sur ce jeu de donnees se situe entre 0,78 et 0,80 d'AUC-ROC.
+objectif_auc_roc: 0.77

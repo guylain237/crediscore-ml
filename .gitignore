@@ -19,6 +19,7 @@ dist/
 
 # Artefacts ML
 mlruns/
+mlflow.db
 mlartifacts/
 models/*.pkl
 models/*.txt

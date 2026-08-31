@@ -75,17 +75,50 @@ def _motif_violation(feature: str, interdite: str) -> str | None:
     return None
 
 
+def variables_exceptees(chemin: Path | None = None) -> dict[str, str]:
+    """Variables examinees et explicitement autorisees, avec leur motif.
+
+    Le controle detecte les derivations par le nom, ce qui produit des faux
+    positifs : OWN_CAR_AGE est l'age d'une voiture, pas d'une personne. Plutot
+    que d'affaiblir la detection, on garde le filet large et on documente les
+    exceptions une par une.
+
+    Une exception sans motif ecrit n'est pas acceptee : ce serait rouvrir la
+    porte que le controle ferme.
+    """
+    contrat = charger_contrat(chemin)
+    accordees = {}
+    for exception in contrat.get("exceptions", []) or []:
+        variable = exception.get("variable", "").strip().upper()
+        motif = (exception.get("motif") or "").strip()
+        if not variable or not motif:
+            raise ValueError(
+                f"Exception mal formee dans le contrat : {exception}. "
+                "Chaque exception exige une variable ET un motif ecrit."
+            )
+        accordees[variable] = motif
+    return accordees
+
+
 def verifier(features: Iterable[str], chemin: Path | None = None) -> list[tuple[str, str]]:
     """Retourne la liste des violations, sous forme (variable, motif).
 
     Une liste vide signifie que le jeu de features respecte le contrat.
     """
     interdites = variables_interdites(chemin)
+    exceptees = variables_exceptees(chemin)
     violations: list[tuple[str, str]] = []
     for feature in features:
         for interdite in sorted(interdites):
             motif = _motif_violation(feature, interdite)
             if motif:
+                if feature.strip().upper() in exceptees:
+                    # Une exception accordee ne passe jamais en silence.
+                    print(
+                        f"  exception appliquee : {feature} — "
+                        f"{exceptees[feature.strip().upper()][:70]}"
+                    )
+                    break
                 violations.append((feature, motif))
                 break
     return violations

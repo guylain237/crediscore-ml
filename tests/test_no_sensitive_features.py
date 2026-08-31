@@ -17,6 +17,7 @@ from src.fairness.contract import (
     ViolationContratEquite,
     charger_contrat,
     exiger_conformite,
+    variables_exceptees,
     variables_interdites,
     verifier,
 )
@@ -128,3 +129,38 @@ def test_les_features_du_modele_respectent_le_contrat() -> None:
 
 def test_le_chemin_du_contrat_est_bien_dans_le_depot() -> None:
     assert CHEMIN_CONTRAT.exists(), f"Contrat attendu à {CHEMIN_CONTRAT}"
+
+
+# ---------------------------------------------------------------------------
+# Les exceptions au contrat
+# ---------------------------------------------------------------------------
+#
+# Le mecanisme d'exception est la seule porte de sortie du controle C-1. Il doit
+# donc etre lui-meme sous surveillance : sans cela, il suffirait d'y ajouter une
+# ligne pour faire passer n'importe quelle variable.
+
+
+def test_chaque_exception_porte_un_motif_ecrit() -> None:
+    """Une exception sans justification n'en est pas une."""
+    for variable, motif in variables_exceptees().items():
+        assert len(motif) > 40, (
+            f"L'exception accordee a {variable} n'est pas justifiee. "
+            f"Une derogation au controle C-1 exige un motif ecrit, "
+            f"pas une mention."
+        )
+
+
+def test_aucun_attribut_protege_n_est_excepte() -> None:
+    """On ne peut pas excepter une variable sensible elle-meme.
+
+    Sans ce test, une ligne d'exception sur CODE_GENDER suffirait a annuler
+    toute la politique P-4.
+    """
+    exceptees = set(variables_exceptees())
+    interdites = variables_interdites()
+    conflit = exceptees & interdites
+    assert not conflit, (
+        f"Ces variables sont a la fois interdites et exceptees : {conflit}. "
+        f"Une exception ne peut porter que sur un faux positif de detection, "
+        f"jamais sur un attribut protege."
+    )
