@@ -329,7 +329,7 @@ propriétaire, un artefact et une date.
 | # | Contrôle | Artefact | Statut |
 |---|---|---|---|
 | **C-1** | Exclusion des variables sensibles, **bloquante** | `src/fairness/contract.py` · `tests/test_no_sensitive_features.py` · `.github/workflows/ci.yml` | ✅ **16/08** — 14 assertions, **exécutées à chaque `push`** |
-| **C-2** | Journal d'audit de chaque décision | API de scoring | 📅 29/08 |
+| **C-2** | Journal d'audit de chaque décision, **bloquant** | `api/journal.py` · `journal.decisions` · `tests/test_api.py` | ✅ **02/09** — si le journal est indisponible, l'API renvoie 500 **sans rendre la décision** ; un test le vérifie en cassant volontairement l'écriture |
 | **C-3** | Détection de proxys par corrélation aux attributs protégés | `src/fairness/proxys.py` · `docs/resultats_proxys.csv` | ✅ **31/08** — 223 variables × 3 attributs, valeur **et** motif d'absence · 5 proxys instruits, 1 retirée |
 | **C-4** | Mesures d'équité chiffrées par sous-population, **bloquante** | `src/fairness/audit.py` · `docs/note_equite.md` §8 · `docs/resultats_equite.csv` | ✅ **31/08** — M-1 à M-6 sur 3 axes · **a bloqué le déploiement** : M-1 = 0,3082 sur l'âge |
 | **C-5** | Explicabilité SHAP globale et locale (< 1 s) **et lisible** | `src/explain/expliquer.py` · `docs/shap_importance_globale.csv` | ✅ **31/08** — 24 ms/dossier · 150 variables montrables, toutes libellées en français |
@@ -339,7 +339,7 @@ propriétaire, un artefact et une date.
 | **C-9** | IAM au moindre privilège | Identity Center · `infra/iam.tf` (2 rôles dérivés du contrat des zones) | ✅ 29/07 · ✅ 22/08 — écriture dans `raw/` refusée, vérifié le 29/08 |
 | **C-10** | Détection de dérive PSI/KS → réentraînement | DAG dérive | 📅 01/09 |
 | **C-11** | Reproductibilité : graine, verrous, hachage | `requirements.lock.txt` ✅ · `.terraform.lock.hcl` ✅ · MLflow | ✅ partiel · 📅 26/08 |
-| **C-12** | Procédure de contrôle humain (réexamen) | Documentée + tracée dans l'API | 📅 29/08 |
+| **C-12** | Procédure de contrôle humain (réexamen) | `POST /decisions/{id}/revue` · zone grise de `configs/seuil_decision.yaml` | ✅ **02/09** — tout refus ouvre le réexamen ; la **zone grise l'impose** avant décision sur 11,7 % des dossiers |
 
 **Règle :** un contrôle qui dépasse sa date sans être livré devient un point de
 non-conformité à déclarer explicitement en soutenance. Le masquer serait la faute
@@ -429,6 +429,7 @@ qu'on peut changer discrètement n'est pas une politique.**
 
 | Version | Date | Modification |
 |---|---|---|
+| 1.2 | 02/09/2026 | **C-2 et C-12 exécutés.** L'API de scoring journalise chaque décision et refuse d'en rendre une qu'elle ne peut pas tracer. Introduction d'une **zone grise** (0,080 à 0,115), déduite de la courbe de coût et non choisie : sur 11,7 % des dossiers, la machine ne décide pas seule. C-5 étendu à la lisibilité — les 223 variables ont un libellé français. |
 | 1.1 | 01/09/2026 | **C-3, C-4 et C-5 exécutés.** C-4 a bloqué le déploiement (M-1 = 0,3082 sur l'âge, seuil 0,05) ; dérogation motivée au §8.9 de la note d'équité. Nouvelle politique **P-10** — traçabilité des scores de tiers, née de la corrélation mesurée entre `EXT_SOURCE_1` et l'âge. |
 | 1.0 | 16/08/2026 | Création. Politiques P-1 à P-9, contrôles C-1 à C-12, registre art. 30, matrice de risques, procédures d'audit. Contrôle C-1 implémenté et testé le même jour. |
 
