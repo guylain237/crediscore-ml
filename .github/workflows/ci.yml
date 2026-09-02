@@ -74,9 +74,15 @@ jobs:
         # service qui démarre sans savoir décider est pire qu'un service
         # absent : il répondrait des erreurs 500 en silence.
         run: |
-          if docker run --rm --name essai crediscore-api:${{ github.sha }}                python -c "from api.decision import moteur; moteur.charger()" 2>&1 | tee sortie.txt; then
+          # Pas de tube ici. `commande | tee fichier` renvoie le code de sortie
+          # de TEE, donc toujours 0 : la première version de ce contrôle
+          # déclarait un échec alors que l'API s'était correctement arrêtée.
+          # Le contrôle était faux, pas le code qu'il contrôlait.
+          if docker run --rm --name essai crediscore-api:${{ github.sha }}                python -c "from api.decision import moteur; moteur.charger()"                > sortie.txt 2>&1; then
             echo "ECHEC : l'API a démarré sans modèle"
+            cat sortie.txt
             exit 1
           fi
+          cat sortie.txt
           grep -q "Modele calibre introuvable" sortie.txt
           echo "L'API refuse de démarrer sans modèle, et le dit clairement."
