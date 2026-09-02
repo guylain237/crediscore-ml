@@ -9,6 +9,7 @@ donne toujours les memes trois jeux. On n'a donc pas besoin de sauvegarder les
 indices : il suffit de rappeler la meme fonction.
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -20,7 +21,23 @@ RACINE = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RACINE / "src"))
 from fairness import contract
 
-SOCLE = RACINE.parent / "donnees_pipeline" / "curated" / "socle_complet"
+# OU LIRE LE SOCLE.
+#
+# En developpement : le dossier local produit par le pipeline joue sur le
+# poste. En production : le data lake, ou le pipeline Spark ecrit vraiment.
+#
+#   CREDISCORE_SOCLE absent  -> ../donnees_pipeline/curated/socle_complet
+#   CREDISCORE_SOCLE definie -> s3://<bucket>/curated/socle_complet
+#
+# pandas lit les deux de la meme facon, via pyarrow et s3fs. Le code ne
+# change pas, seule l'adresse change — comme pour MLFLOW_TRACKING_URI et
+# comme pour les zones du data lake cote pipeline. C'est ce qui permet de
+# dire au jury que le modele consomme la sortie du pipeline, et pas une
+# copie locale qui aurait diverge.
+SOCLE = os.environ.get(
+    "CREDISCORE_SOCLE",
+    str(RACINE.parent / "donnees_pipeline" / "curated" / "socle_complet"),
+)
 MODELE = RACINE / "models" / "modele.pkl"
 
 # Le modele calibre. Il produit les memes classements que le precedent, mais

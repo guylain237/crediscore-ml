@@ -31,3 +31,8 @@ uvicorn[standard]>=0.30
 psycopg[binary]>=3.2
 # Client de test de l'API (tests/test_api.py)
 httpx>=0.27
+
+# Lecture du socle depuis le data lake (CREDISCORE_SOCLE=s3://...). Sans ce
+# paquet, pandas ne sait pas ouvrir une URL s3:// et le modele ne peut lire
+# que la copie locale.
+s3fs>=2024.6

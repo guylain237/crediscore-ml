@@ -27,3 +27,8 @@ pyyaml>=6.0
 
 # Journal des decisions dans PostgreSQL (controle C-2)
 psycopg[binary]>=3.2
+
+# Lecture du socle depuis le data lake (CREDISCORE_SOCLE=s3://...). Sans ce
+# paquet, pandas ne sait pas ouvrir une URL s3:// et le modele ne peut lire
+# que la copie locale.
+s3fs>=2024.6
