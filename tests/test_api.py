@@ -170,3 +170,25 @@ def test_journal_indisponible_bloque_la_decision(client, dossiers, monkeypatch):
 
     assert reponse.status_code == 500
     assert "journal d'audit" in reponse.json()["detail"]
+
+
+def test_sonde_signale_la_panne_au_lieu_de_mourir(client, monkeypatch):
+    """Une sonde de sante doit dire que ca va mal, pas s'ecrouler avec.
+
+    La premiere version appelait le journal sans filet : quand la base etait
+    injoignable, /sante renvoyait une trace d'exception au lieu d'un
+    diagnostic. Le conteneur restait alors en rotation.
+    """
+
+    def injoignable():
+        raise ConnectionError("base injoignable")
+
+    monkeypatch.setattr(journal, "compter", injoignable)
+    reponse = client.get("/sante")
+
+    # 503 et non 500 : le service est vivant mais hors d'etat de servir.
+    assert reponse.status_code == 503
+    corps = reponse.json()
+    assert corps["statut"] == "degrade"
+    assert corps["journal_joignable"] is False
+    assert "base injoignable" in corps["journal_erreur"]

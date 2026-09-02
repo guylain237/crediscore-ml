@@ -212,6 +212,36 @@ def relire(id_decision):
     return _relire_fichier(id_decision)
 
 
+def etat():
+    """Etat du journal, pour la sonde de sante. Ne leve JAMAIS.
+
+    Une sonde qui meurt quand la dependance est en panne ne sert a rien :
+    son travail est justement de dire que ca va mal. La premiere version
+    appelait compter() sans filet et l'API renvoyait une trace d'exception au
+    lieu d'un diagnostic.
+    """
+    try:
+        return {
+            "destination": destination(),
+            "joignable": True,
+            "decisions_journalisees": compter(),
+            "erreur": None,
+        }
+    # On attrape TOUT, et c'est voulu : reseau, authentification, base
+    # absente, pilote casse. Une sonde qui ne rattrape que les pannes
+    # prevues meurt sur les autres, c'est-a-dire exactement celles qu'on
+    # aurait voulu voir signalees.
+    except Exception as erreur:  # noqa: BLE001
+        return {
+            "destination": destination(),
+            "joignable": False,
+            "decisions_journalisees": None,
+            # Le message de la base, tronque : il peut contenir l'hote et le
+            # port, utiles au diagnostic, mais pas plus.
+            "erreur": f"{type(erreur).__name__}: {str(erreur)[:120]}",
+        }
+
+
 def compter():
     """Nombre de decisions journalisees, pour le controle de sante."""
     if url_base():

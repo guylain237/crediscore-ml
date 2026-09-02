@@ -31,7 +31,7 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel, Field
 
 RACINE = Path(__file__).resolve().parents[1]
@@ -89,18 +89,31 @@ class DemandeRevue(BaseModel):
 
 
 @application.get("/sante")
-def sante():
-    """Etat du service. Utilise par la sonde du conteneur."""
+def sante(reponse: Response):
+    """Etat du service. Utilise par la sonde du conteneur.
+
+    Renvoie 503 si le journal des decisions est injoignable. Ce n'est pas un
+    exces de zele : sans journal, l'API ne peut rendre AUCUNE decision
+    (controle C-2). Un conteneur dans cet etat doit sortir de la rotation, pas
+    continuer a recevoir du trafic pour repondre des 500.
+    """
+    etat_journal = journal.etat()
+    en_panne = not etat_journal["joignable"]
+    if en_panne:
+        reponse.status_code = 503
+
     return {
-        "statut": "pret" if moteur.pret else "chargement",
+        "statut": "degrade" if en_panne else ("pret" if moteur.pret else "chargement"),
         "version_modele": moteur.version,
         "seuil": moteur.config["seuil"] if moteur.pret else None,
         "zone_grise": (
             [moteur.config["zone_grise_bas"], moteur.config["zone_grise_haut"]]
             if moteur.pret else None
         ),
-        "journal": journal.destination(),
-        "decisions_journalisees": journal.compter(),
+        "journal": etat_journal["destination"],
+        "journal_joignable": etat_journal["joignable"],
+        "journal_erreur": etat_journal["erreur"],
+        "decisions_journalisees": etat_journal["decisions_journalisees"],
         "variables_sans_libelle": len(moteur.facteurs_sans_libelle()) if moteur.pret else None,
     }
 
