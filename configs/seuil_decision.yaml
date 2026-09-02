@@ -5,3 +5,10 @@ seuil: 0.095
 calcule_le: 2026-08-31
 taux_acceptation: 0.7024
 taux_defaut_portefeuille: 0.0358
+
+# Zone grise : en dessous on accorde, au-dessus on refuse, entre les
+# deux un analyste tranche. Bornes deduites de la courbe de cout :
+# ce sont les seuils dont le cout depasse le minimum de moins de 2 %.
+zone_grise_bas: 0.080
+zone_grise_haut: 0.115
+zone_grise_part_dossiers: 0.1168

@@ -24,6 +24,7 @@ Usage : python src/models/seuil.py
 """
 
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 import joblib
@@ -40,6 +41,15 @@ from models import preparation
 
 # Seuils testes : de 1 % a 99 %, par pas de 0,5 %.
 SEUILS = np.arange(0.01, 0.99, 0.005)
+
+# Largeur de la zone grise : on retient tous les seuils dont le cout total
+# depasse le minimum de moins de 2 %. Dans cet intervalle, deplacer le seuil
+# ne change presque rien au cout — autrement dit, la machine n'a pas de
+# raison forte de trancher dans un sens plutot que dans l'autre. C'est donc
+# la que l'analyste doit decider, et non elle.
+#
+# La zone n'est pas choisie a la main : elle se deduit de la courbe de cout.
+TOLERANCE_ZONE_GRISE = 0.02
 
 
 def calculer_couts(cible, probabilites, cout_faux_negatif, cout_faux_positif):
@@ -156,6 +166,20 @@ def main():
     print(f"  defauts non detectes       : {int(meilleur.faux_negatifs):,}".replace(",", " "))
     print(f"  bons clients refuses       : {int(meilleur.faux_positifs):,}".replace(",", " "))
 
+    # La zone grise : la ou le modele ne tranche pas assez nettement pour decider seul.
+    plancher = couts.cout_total.min() * (1 + TOLERANCE_ZONE_GRISE)
+    zone = couts[couts.cout_total <= plancher]
+    bas, haut = float(zone.seuil.min()), float(zone.seuil.max())
+    dans_zone = (probabilites >= bas) & (probabilites <= haut)
+
+    print()
+    print(f"Zone grise (cout a moins de {TOLERANCE_ZONE_GRISE * 100:.0f} % du minimum)")
+    print(f"  de {bas:.3f} a {haut:.3f}")
+    print(f"  {dans_zone.sum():,} dossiers, soit {dans_zone.mean() * 100:.1f} % du test".replace(",", " "))
+    print(f"  taux de defaut reel dans la zone : {y_test.values[dans_zone].mean() * 100:.2f} %")
+    print(f"  sous la zone : {y_test.values[probabilites < bas].mean() * 100:.2f} % de defaut")
+    print(f"  au-dessus    : {y_test.values[probabilites > haut].mean() * 100:.2f} % de defaut")
+
     # Comparaison avec le seuil naif, pour mesurer ce que la demarche apporte.
     naif = couts.iloc[(couts.seuil - 0.5).abs().argmin()]
     economie = naif.cout_total - meilleur.cout_total
@@ -178,9 +202,16 @@ def main():
         "# Ne pas modifier a la main : relancer le script apres tout\n"
         "# reentrainement, car le seuil depend du modele.\n"
         f"seuil: {meilleur.seuil:.3f}\n"
-        f"calcule_le: 2026-08-31\n"
+        f"calcule_le: {datetime.now(UTC).date().isoformat()}\n"
         f"taux_acceptation: {meilleur.taux_acceptation:.4f}\n"
-        f"taux_defaut_portefeuille: {meilleur.taux_defaut_portefeuille:.4f}\n",
+        f"taux_defaut_portefeuille: {meilleur.taux_defaut_portefeuille:.4f}\n"
+        "\n"
+        "# Zone grise : en dessous on accorde, au-dessus on refuse, entre les\n"
+        "# deux un analyste tranche. Bornes deduites de la courbe de cout :\n"
+        "# ce sont les seuils dont le cout depasse le minimum de moins de 2 %.\n"
+        f"zone_grise_bas: {bas:.3f}\n"
+        f"zone_grise_haut: {haut:.3f}\n"
+        f"zone_grise_part_dossiers: {dans_zone.mean():.4f}\n",
         encoding="utf-8",
     )
     print(f"Seuil ecrit dans {chemin_seuil.relative_to(RACINE)}")

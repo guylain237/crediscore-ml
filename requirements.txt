@@ -23,3 +23,11 @@ ruff>=0.5
 
 # Notebooks
 jupyter>=1.0
+
+# API de scoring (api/)
+fastapi>=0.115
+uvicorn[standard]>=0.30
+# Ecriture du journal des decisions dans PostgreSQL (controle C-2)
+psycopg[binary]>=3.2
+# Client de test de l'API (tests/test_api.py)
+httpx>=0.27
