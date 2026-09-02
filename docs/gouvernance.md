@@ -337,8 +337,8 @@ propriétaire, un artefact et une date.
 | **C-7** | Pseudonymisation des identifiants dans les journaux | `pipelines/spark_jobs/pseudonyme.py` | ✅ 30/08 |
 | **C-8** | Chiffrement au repos et en transit | `infra/datalake.tf` (S3) · `infra/compute.tf` (disque VM) | ✅ 30/07 · ✅ 22/08 |
 | **C-9** | IAM au moindre privilège | Identity Center · `infra/iam.tf` (2 rôles dérivés du contrat des zones) | ✅ 29/07 · ✅ 22/08 — écriture dans `raw/` refusée, vérifié le 29/08 |
-| **C-10** | Détection de dérive PSI/KS → réentraînement | DAG dérive | 📅 01/09 |
-| **C-11** | Reproductibilité : graine, verrous, hachage | `requirements.lock.txt` ✅ · `.terraform.lock.hcl` ✅ · MLflow | ✅ partiel · 📅 26/08 |
+| **C-10** | Détection de dérive PSI/KS → réentraînement | `src/monitoring/derive.py` · DAG `surveillance_derive` · `docs/resultats_derive.csv` | ✅ **02/09** — distingue dérive de **population** (réentraîner) et de **couverture** (corriger la source) ; a trouvé une asymétrie réelle de `bureau_balance` dès la première mesure |
+| **C-11** | Reproductibilité : graine, verrous, hachage | `tests/test_reproductibilite.py` · `requirements.lock.txt` · `.terraform.lock.hcl` · empreinte MLflow | ✅ **02/09** — 6 tests exécutables : découpage déterministe, graine hors du code, verrou sans version souple |
 | **C-12** | Procédure de contrôle humain (réexamen) | `POST /decisions/{id}/revue` · zone grise de `configs/seuil_decision.yaml` | ✅ **02/09** — tout refus ouvre le réexamen ; la **zone grise l'impose** avant décision sur 11,7 % des dossiers |
 
 **Règle :** un contrôle qui dépasse sa date sans être livré devient un point de
@@ -429,6 +429,7 @@ qu'on peut changer discrètement n'est pas une politique.**
 
 | Version | Date | Modification |
 |---|---|---|
+| 1.3 | 02/09/2026 | **C-10 et C-11 exécutés — les douze contrôles sont tenus.** La détection de dérive distingue un changement de *population* d'un changement de *couverture de source* : réentraîner sur le second graverait un défaut d'alimentation dans le modèle. Elle a trouvé, dès sa première mesure, que `bureau_balance` couvre 30 % des dossiers d'entraînement contre 86,8 % de ceux à scorer. C-11 devient exécutable : 6 tests au lieu d'une intention. |
 | 1.2 | 02/09/2026 | **C-2 et C-12 exécutés.** L'API de scoring journalise chaque décision et refuse d'en rendre une qu'elle ne peut pas tracer. Introduction d'une **zone grise** (0,080 à 0,115), déduite de la courbe de coût et non choisie : sur 11,7 % des dossiers, la machine ne décide pas seule. C-5 étendu à la lisibilité — les 223 variables ont un libellé français. |
 | 1.1 | 01/09/2026 | **C-3, C-4 et C-5 exécutés.** C-4 a bloqué le déploiement (M-1 = 0,3082 sur l'âge, seuil 0,05) ; dérogation motivée au §8.9 de la note d'équité. Nouvelle politique **P-10** — traçabilité des scores de tiers, née de la corrélation mesurée entre `EXT_SOURCE_1` et l'âge. |
 | 1.0 | 16/08/2026 | Création. Politiques P-1 à P-9, contrôles C-1 à C-12, registre art. 30, matrice de risques, procédures d'audit. Contrôle C-1 implémenté et testé le même jour. |
