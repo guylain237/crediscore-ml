@@ -1,0 +1,29 @@
+# Dependances de l'API SEULE, pour l'image Docker.
+#
+# requirements.txt decrit l'environnement de DEVELOPPEMENT : il contient
+# Jupyter, MLflow, matplotlib, pytest. Rien de tout cela n'a sa place dans une
+# image exposee sur le reseau — chaque paquet installe est une surface
+# d'attaque de plus, et l'image passe de 2 Gio a quelques centaines de Mio.
+#
+# Ce qui est ici doit suffire a charger le modele, scorer, expliquer et
+# journaliser. Rien d'autre.
+
+fastapi>=0.115
+uvicorn[standard]>=0.30
+
+# Chargement et inference
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.5
+lightgbm>=4.3
+joblib>=1.4
+pyarrow>=16.0
+
+# Explicabilite des decisions (controle C-5)
+shap>=0.46
+
+# Lecture du contrat des variables sensibles et du seuil
+pyyaml>=6.0
+
+# Journal des decisions dans PostgreSQL (controle C-2)
+psycopg[binary]>=3.2

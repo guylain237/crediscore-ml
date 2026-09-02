@@ -1,0 +1,35 @@
+# Ce qui ne doit jamais entrer dans l'image.
+
+# Donnees : elles vivent dans le data lake, pas dans une image qu'on pousse
+# sur un registre.
+input/
+data/
+*.csv
+*.parquet
+*.zip
+
+# Le modele arrive par volume ou depuis MLflow, jamais par la couche Docker.
+models/
+mlruns/
+mlartifacts/
+mlflow.db
+
+# Environnement local et artefacts de developpement.
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+notebooks/
+
+# Historique et outils.
+.git/
+.github/
+.vscode/
+.idea/
+
+# Secrets.
+.env
+*.pem
+*.key

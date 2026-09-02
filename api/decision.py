@@ -41,7 +41,7 @@ import yaml
 
 RACINE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RACINE / "src"))
-from explain.expliquer import LIBELLES, libelle
+from explain.libelles import LIBELLES, libelle
 from models import preparation
 
 # Nombre de facteurs rendus au demandeur. Cinq : au-dela, un motif de refus

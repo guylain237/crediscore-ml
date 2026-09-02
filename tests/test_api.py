@@ -30,7 +30,10 @@ from api.main import application
 @pytest.fixture(scope="module")
 def client(tmp_path_factory):
     """Un client de test, avec un journal isole."""
-    if not moteur.__class__ or not (RACINE / "models" / "modele_calibre.pkl").exists():
+    # En integration continue, ni le modele ni le socle ne sont presents : ce
+    # sont des artefacts, pas du code. Les tests d'API sont alors ignores, et
+    # le journal de la CI le dit explicitement.
+    if not (RACINE / "models" / "modele_calibre.pkl").exists():
         pytest.skip("modele calibre absent : lancez entrainer.py puis calibrer.py")
 
     journal.JOURNAL_LOCAL = tmp_path_factory.mktemp("journal") / "decisions.jsonl"

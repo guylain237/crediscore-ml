@@ -42,7 +42,7 @@ jobs:
         run: .venv/bin/python -m pip install --upgrade pip -r requirements.txt
 
       - name: Qualité du code (ruff)
-        run: .venv/bin/python -m ruff check src tests
+        run: .venv/bin/python -m ruff check src tests api
 
       - name: "Contrôle C-1 — exclusion des variables sensibles (P-4, D-003)"
         # Étape isolée et nommée : le journal d'exécution rend le contrôle
@@ -52,3 +52,31 @@ jobs:
 
       - name: Suite de tests complète
         run: .venv/bin/python -m pytest -q
+
+  image:
+    name: Construction de l'image de l'API
+    runs-on: ubuntu-latest
+    # Inutile de construire une image si le code ne passe pas les contrôles.
+    needs: qualite-et-tests
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Construire l'image
+        # Le build est le test : il échoue si une dépendance manque dans
+        # requirements-api.txt. C'est ainsi qu'a été trouvé le couplage entre
+        # l'API et matplotlib, que rien d'autre ne signalait.
+        run: docker build -t crediscore-api:${{ github.sha }} .
+
+      - name: "Vérifier que l'API démarre et refuse de servir sans modèle"
+        # Sans modèle monté, l'API doit échouer FRANCHEMENT au démarrage. Un
+        # service qui démarre sans savoir décider est pire qu'un service
+        # absent : il répondrait des erreurs 500 en silence.
+        run: |
+          if docker run --rm --name essai crediscore-api:${{ github.sha }}                python -c "from api.decision import moteur; moteur.charger()" 2>&1 | tee sortie.txt; then
+            echo "ECHEC : l'API a démarré sans modèle"
+            exit 1
+          fi
+          grep -q "Modele calibre introuvable" sortie.txt
+          echo "L'API refuse de démarrer sans modèle, et le dit clairement."
