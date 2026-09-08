@@ -81,7 +81,62 @@ s'appliquent **depuis le 2 août 2026**. Ce projet est donc conçu sous un régi
 
 ---
 
+### 1.5 Autres cadres applicables
+
+L'AI Act et le RGPD ne sont pas les seuls textes qui s'imposent à ce système.
+
+| Cadre | Ce qu'il impose ici | Où c'est traité |
+|---|---|---|
+| **ACPR / EBA** — orientations sur l'octroi et le suivi des prêts (EBA/GL/2020/06) | gouvernance des modèles, documentation des critères d'octroi, revue périodique, traçabilité des décisions | §9 procédures d'audit · P-7 · C-11 |
+| **ISO/IEC 27001** — sécurité de l'information | chiffrement, contrôle d'accès, journalisation, gestion des incidents | P-8 · C-8, C-9 |
+| **RGAA 4.1** — accessibilité numérique | l'écran qui annonce la décision doit être perceptible | P-11 · `accessibilite.md` |
+| **Code de la consommation, art. L312-16** | vérification de la solvabilité avant octroi | fonde la base légale du §4.1 |
+
+> **Portée réelle.** Ce démonstrateur n'est pas certifié ISO 27001 et n'a pas
+> été examiné par l'ACPR. Ces cadres sont cités parce qu'ils s'appliqueraient à
+> l'établissement, et parce qu'ils expliquent plusieurs choix du projet — pas
+> pour laisser croire à une conformité constatée.
+
+---
+
 ## 2. Politiques — le socle opposable
+
+### 2.0 Classification des données
+
+Toute donnée du projet appartient à l'une de ces quatre classes. La classe
+détermine qui peut y accéder, où elle peut vivre et combien de temps.
+
+| Classe | Ce qu'elle couvre ici | Zone du data lake | Accès |
+|---|---|---|---|
+| **Publique** | dictionnaire des colonnes, documentation, code | `reference/` · dépôts Git | libre |
+| **Interne** | variables agrégées, profils de dérive, métriques | `curated/` | équipe projet |
+| **Personnelle** | identifiants de dossier, historiques de paiement, adresses déclarées | `raw/` · `clean/` | rôle IAM de traitement, en lecture seule sur `raw/` |
+| **Personnelle sensible au sens du projet** | genre, âge, situation familiale | `clean/attributs_sensibles` | **audit d'équité uniquement** — le modèle ne lit jamais cette zone |
+
+> **La quatrième classe n'est pas « sensible » au sens de l'article 9 du RGPD**
+> — le genre et l'âge n'y figurent pas. Elle est traitée comme telle ici parce
+> que ce sont les attributs protégés par le droit de la non-discrimination :
+> c'est leur usage qui est interdit, pas leur collecte.
+
+### 2.1 Partage avec le bureau de crédit externe
+
+Le flux `bureau.csv` / `bureau_balance.csv` provient d'un tiers. Ce partage est
+encadré contractuellement sur trois points, exigés par la politique P-2 et par
+l'article 28 du RGPD lorsque le tiers agit comme sous-traitant.
+
+| Point | Engagement attendu du contrat |
+|---|---|
+| **Finalité** | les données reçues servent **exclusivement** à l'évaluation de solvabilité d'un demandeur ayant une demande en cours. Aucun usage de prospection, d'enrichissement de base ou de revente. |
+| **Réciprocité** | ce que CrediScore déclare au bureau est limité aux mêmes catégories que ce qu'il reçoit, et soumis à l'information préalable du demandeur. |
+| **Durée** | les données du bureau sont conservées le temps de l'instruction, puis agrégées ; les lignes brutes sont purgées selon le §4.2. |
+
+> **Réserve P-10 rappelée ici.** Les scores externes `EXT_SOURCE_1/2/3`
+> proviennent également de tiers, et leur composition nous est inconnue. Le
+> contrat doit donc exiger, en plus des trois points ci-dessus, la
+> **méthodologie du score** et l'attestation qu'aucun attribut protégé n'y
+> entre. Sans cela, `EXT_SOURCE_1` reste un proxy d'âge mesuré à 0,600 dont
+> nous ne pouvons pas répondre.
+
 
 ### P-1 — Localisation et souveraineté des données
 
@@ -167,6 +222,45 @@ temporaires via IAM Identity Center pour les opérateurs, rôles IAM pour les
 applications. L'identité applicative n'a accès qu'aux préfixes `curated/` en
 lecture et `audit/` en écriture — **jamais aux données brutes**.
 
+### P-9 — Maîtrise et sobriété des ressources
+
+Toute ressource facturée à l'heure est créée **exclusivement par Terraform**, et
+détruite hors sessions de travail.
+
+> **Cette politique naît d'un incident réel.** Une base RDS `db.r7g.large` créée
+> à la console le 29/07, jamais utilisée, a coûté 6,66 USD/jour pendant 7 jours
+> (≈ 50 USD) avant détection. Invisible pour Terraform, elle n'apparaissait ni
+> dans `terraform state list` ni dans un `terraform destroy`. La gouvernance des
+> coûts n'est pas une question comptable : une ressource non gouvernée est une
+> ressource non sécurisée et non auditée.
+
+---
+
+### P-10 — Traçabilité des scores fournis par des tiers
+
+Aucun score externe ne peut peser dans une décision sans que sa composition
+soit connue et attestée exempte d'attribut protégé.
+
+> **Cette politique naît d'une mesure, le 31/08/2026.** `EXT_SOURCE_1` est la
+> troisième variable du modèle au sens SHAP. Elle est corrélée à 0,600 avec
+> l'âge du demandeur : 0,332 en moyenne chez les 20-30 ans, 0,739 chez les
+> 60-70 ans. Nous avons exclu l'âge du modèle et un fournisseur nous le rend
+> dans un score dont nous ignorons la recette.
+>
+> Deux exigences s'en trouvent en défaut. L'AI Act impose qu'un système à haut
+> risque soit explicable : nous expliquons ici une décision par un score que
+> nous ne savons pas expliquer. Et la note d'équité interdit les proxys sans
+> justification autonome : celle du score externe est invérifiable par
+> construction.
+>
+> **Conséquence opérationnelle.** La mise en production est conditionnée à
+> l'obtention, auprès du fournisseur, de la liste des variables composant le
+> score et de l'attestation qu'aucun attribut protégé n'y figure. À défaut,
+> `EXT_SOURCE_1`, `EXT_SOURCE_2` et `EXT_SOURCE_3` sont retirées — au prix
+> d'une baisse de performance qu'il faudra alors mesurer. Le démonstrateur les
+> conserve délibérément : les retirer masquerait le problème au lieu de le
+> poser.
+
 ### P-11 — Accessibilité de la restitution
 
 Toute décision communiquée à un demandeur doit être **perceptible** par lui,
@@ -195,45 +289,6 @@ quelle que soit sa situation de handicap.
 > déclaré : un taux au sens du décret 2019-768 suppose l'évaluation des 106
 > critères par un auditeur, y compris ceux qu'aucun programme ne sait juger.
 > Voir `docs/accessibilite.md`, §6.
-
-### P-10 — Traçabilité des scores fournis par des tiers
-
-Aucun score externe ne peut peser dans une décision sans que sa composition
-soit connue et attestée exempte d'attribut protégé.
-
-> **Cette politique naît d'une mesure, le 31/08/2026.** `EXT_SOURCE_1` est la
-> troisième variable du modèle au sens SHAP. Elle est corrélée à 0,600 avec
-> l'âge du demandeur : 0,332 en moyenne chez les 20-30 ans, 0,739 chez les
-> 60-70 ans. Nous avons exclu l'âge du modèle et un fournisseur nous le rend
-> dans un score dont nous ignorons la recette.
->
-> Deux exigences s'en trouvent en défaut. L'AI Act impose qu'un système à haut
-> risque soit explicable : nous expliquons ici une décision par un score que
-> nous ne savons pas expliquer. Et la note d'équité interdit les proxys sans
-> justification autonome : celle du score externe est invérifiable par
-> construction.
->
-> **Conséquence opérationnelle.** La mise en production est conditionnée à
-> l'obtention, auprès du fournisseur, de la liste des variables composant le
-> score et de l'attestation qu'aucun attribut protégé n'y figure. À défaut,
-> `EXT_SOURCE_1`, `EXT_SOURCE_2` et `EXT_SOURCE_3` sont retirées — au prix
-> d'une baisse de performance qu'il faudra alors mesurer. Le démonstrateur les
-> conserve délibérément : les retirer masquerait le problème au lieu de le
-> poser.
-
-### P-9 — Maîtrise et sobriété des ressources
-
-Toute ressource facturée à l'heure est créée **exclusivement par Terraform**, et
-détruite hors sessions de travail.
-
-> **Cette politique naît d'un incident réel.** Une base RDS `db.r7g.large` créée
-> à la console le 29/07, jamais utilisée, a coûté 6,66 USD/jour pendant 7 jours
-> (≈ 50 USD) avant détection. Invisible pour Terraform, elle n'apparaissait ni
-> dans `terraform state list` ni dans un `terraform destroy`. La gouvernance des
-> coûts n'est pas une question comptable : une ressource non gouvernée est une
-> ressource non sécurisée et non auditée.
-
----
 
 ## 3. Rôles et responsabilités
 
@@ -267,6 +322,25 @@ RSSI = sécurité SI · CE = comité d'équité
 
 ---
 
+### 3.3 Correspondance avec le document de projet
+
+Le document de projet validé nomme deux rôles selon le vocabulaire de la
+gouvernance des données. Ils correspondent à ceux de la matrice ci-dessus :
+
+| Document de projet | Ici | Ce qu'il porte |
+|---|---|---|
+| **Data Owner** | **DR** — direction des risques | responsable de l'usage : finalité, appétence au risque, seuil de décision, autorisation de mise en production |
+| **Data Stewards** | **DS** et **DE** — équipe Data | garants de la qualité : contrôles C-6, définitions des variables, feature store |
+| **DPO** | **DPO** | base légale, registre, information des demandeurs, article 22 |
+| **Comité d'équité** | **CE** | seul habilité à modifier le contrat des variables sensibles et à lever un blocage C-4 |
+
+La matrice RACI est conservée plutôt que la simple liste du document : elle dit
+qui **approuve**, pas seulement qui participe. Sur une décision comme
+« autoriser la mise en production », la différence est le sujet.
+
+---
+
+
 ## 4. Registre des traitements (RGPD art. 30)
 
 ### 4.1 Fiche de traitement
@@ -283,6 +357,19 @@ RSSI = sécurité SI · CE = comité d'équité
 | **Destinataires** | Analystes crédit · direction des risques · sous-traitant d'hébergement (AWS, UE) |
 | **Transferts hors UE** | **Aucun** (P-1) |
 | **Durées de conservation** | Voir §4.2 |
+
+> **Divergence assumée avec le document de projet.** Celui-ci annonçait
+> « exécution du contrat et **intérêt légitime** » (art. 6 §1 f). La base
+> retenue ici est l'**obligation légale** (art. 6 §1 c), fondée sur l'article
+> L312-16 du code de la consommation qui impose au prêteur de vérifier la
+> solvabilité avant tout octroi.
+>
+> **Pourquoi ce changement.** L'intérêt légitime ouvre un droit d'opposition
+> (art. 21 du RGPD) : un demandeur pourrait s'opposer à l'évaluation de sa
+> solvabilité, ce que le prêteur n'a pas le droit d'accepter. Invoquer une base
+> légale qui donne un droit qu'on ne peut pas honorer fragilise tout le
+> traitement. L'obligation légale est plus contraignante pour l'établissement,
+> et plus solide devant un contrôle.
 | **Mesures de sécurité** | Chiffrement au repos (SSE-S3/KMS) et en transit (TLS) · IAM au moindre privilège · identités temporaires · journalisation d'audit · blocage de tout accès public |
 | **Décision automatisée** | Oui — art. 22 : contrôle humain, explication, contestation (P-5, P-6) |
 
@@ -458,6 +545,7 @@ qu'on peut changer discrètement n'est pas une politique.**
 
 | Version | Date | Modification |
 |---|---|---|
+| 1.5 | 08/09/2026 | **Alignement sur le document de projet validé.** Ajout de la classification des données en quatre classes (§2.0), de l'encadrement contractuel du partage avec le bureau de crédit (§2.1), des cadres ACPR/EBA et ISO 27001 (§1.5), et de la correspondance Data Owner / Data Steward avec la matrice RACI (§3.3). Divergence de base légale explicitée : obligation légale plutôt qu'intérêt légitime. Politiques P-9 à P-11 remises dans l'ordre. |
 | 1.4 | 08/09/2026 | **Politique P-11 — accessibilité de la restitution.** Le réexamen humain qu'impose C-12 se faisait sur du JSON brut : il manquait l'écran. Il est créé, construit selon le RGAA 4.1, et 11 critères y sont vérifiés automatiquement — dont le contraste, **calculé** et non estimé. Aucun taux de conformité n'est déclaré : un audit reste requis (`docs/accessibilite.md`). |
 | 1.3 | 02/09/2026 | **C-10 et C-11 exécutés — les douze contrôles sont tenus.** La détection de dérive distingue un changement de *population* d'un changement de *couverture de source* : réentraîner sur le second graverait un défaut d'alimentation dans le modèle. Elle a trouvé, dès sa première mesure, que `bureau_balance` couvre 30 % des dossiers d'entraînement contre 86,8 % de ceux à scorer. C-11 devient exécutable : 6 tests au lieu d'une intention. |
 | 1.2 | 02/09/2026 | **C-2 et C-12 exécutés.** L'API de scoring journalise chaque décision et refuse d'en rendre une qu'elle ne peut pas tracer. Introduction d'une **zone grise** (0,080 à 0,115), déduite de la courbe de coût et non choisie : sur 11,7 % des dossiers, la machine ne décide pas seule. C-5 étendu à la lisibilité — les 223 variables ont un libellé français. |
