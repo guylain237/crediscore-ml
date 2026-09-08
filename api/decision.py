@@ -174,7 +174,7 @@ class Moteur:
         # Un refus se motive toujours ; un accord n'a pas a l'etre autant, mais
         # on calcule quand meme les facteurs : le journal d'audit doit pouvoir
         # expliquer une decision favorable si elle est contestee plus tard.
-        facteurs = self.expliquer(ligne)
+        facteurs = self.expliquer(ligne, decision)
 
         return {
             "sk_id_curr": int(sk_id_curr),
@@ -190,14 +190,38 @@ class Moteur:
             "duree_ms": int((time.perf_counter() - depart) * 1000),
         }
 
-    def expliquer(self, ligne):
-        """Les cinq facteurs les plus defavorables, en francais."""
+    def expliquer(self, ligne, decision="refuse"):
+        """Les cinq facteurs qui expliquent LA decision rendue.
+
+        POURQUOI LE SENS DEPEND DE LA DECISION.
+
+        La premiere version rendait toujours les cinq facteurs les plus
+        DEFAVORABLES. Sur un dossier accorde, la page annoncait donc :
+
+            Accordee — probabilite 1,7 %
+            1. score externe n1 ........... defavorable
+            2. anciennete dans l'emploi ... defavorable
+            ... et ainsi de suite sur les cinq
+
+        Un demandeur y lit une contradiction : on l'accepte, et tout joue
+        contre lui. C'est incomprehensible, et c'est faux — ce qui a emporte
+        la decision, ce sont les facteurs FAVORABLES, qu'on ne lui montrait
+        pas.
+
+        Un refus se motive par ce qui a nui. Un accord s'explique par ce qui a
+        aide. La question posee n'est pas la meme.
+        """
         valeurs = self.explicateur.shap_values(ligne)
         if isinstance(valeurs, list):
             valeurs = valeurs[1]
         valeurs = np.asarray(valeurs).reshape(-1)
 
-        rangs = np.argsort(-valeurs)[:FACTEURS]
+        # Sur un accord, on trie a l'endroit : les contributions les plus
+        # negatives sont celles qui ont fait baisser le risque.
+        if decision == "accorde":
+            rangs = np.argsort(valeurs)[:FACTEURS]
+        else:
+            rangs = np.argsort(-valeurs)[:FACTEURS]
         facteurs = []
         for rang in rangs:
             nom = self.colonnes[rang]

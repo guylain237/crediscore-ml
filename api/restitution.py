@@ -73,6 +73,25 @@ EXPLICATIONS = {
 }
 
 
+# La legende du tableau depend de l'issue : sur un accord on montre ce qui a
+# aide, sur un refus ce qui a nui. Une legende unique ferait lire "ce qui a le
+# plus pese" a cote de cinq facteurs favorables — ambigu.
+LEGENDES = {
+    "accorde": (
+        "Les cinq éléments qui ont le plus joué en faveur de votre demande, "
+        "du plus au moins influent."
+    ),
+    "refuse": (
+        "Les cinq éléments qui ont le plus pesé contre votre demande, "
+        "du plus au moins influent."
+    ),
+    "revue_humaine": (
+        "Les cinq éléments qui ont le plus pesé contre votre demande, "
+        "du plus au moins influent. Ils seront examinés par une personne."
+    ),
+}
+
+
 def nombre(valeur):
     """Un nombre ecrit en francais : virgule decimale, pas point.
 
@@ -196,7 +215,7 @@ def construire(decision):
 
     <h2>Motifs de la décision</h2>
     <table>
-      <caption>Les cinq éléments ayant le plus pesé, du plus au moins influent.</caption>
+      <caption>{LEGENDES.get(etat, LEGENDES['refuse'])}</caption>
       <thead>
         <tr>
           <th scope="col">Rang</th>

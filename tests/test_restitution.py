@@ -423,3 +423,47 @@ def test_la_page_ne_montre_plus_de_valeur_brute():
     assert "Entreprise (type 3)" in page
     assert "0,14" in page
     assert "défavorable" in page
+
+
+def test_un_accord_montre_ce_qui_a_aide_pas_ce_qui_a_nui():
+    """Sur un dossier accorde, les cinq motifs doivent etre FAVORABLES.
+
+    La premiere version affichait toujours les cinq facteurs les plus
+    defavorables. Un demandeur accepte lisait donc :
+
+        Accordee — probabilite 1,7 %
+        1. score externe n1 ... defavorable
+        ... et ainsi de suite sur les cinq
+
+    Une contradiction apparente, et une explication fausse : ce qui a emporte
+    la decision, ce sont les facteurs favorables, qu'on ne montrait pas.
+    """
+
+    from api.decision import moteur
+    from models import preparation
+
+    if not preparation.MODELE_CALIBRE.exists():
+        pytest.skip("modele calibre absent")
+    if moteur.modele is None:
+        moteur.charger()
+
+    # On cherche un dossier accorde, puis on regarde le sens de ses motifs.
+    for sk_id_curr in moteur.socle.index[:400]:
+        resultat = moteur.decider(int(sk_id_curr))
+        if resultat["decision"] == "accorde":
+            sens = {f["sens"] for f in resultat["facteurs"]}
+            assert sens == {"favorable"}, (
+                f"un accord affiche des motifs {sens} : ils doivent tous etre "
+                f"favorables"
+            )
+            return
+    pytest.skip("aucun dossier accorde parmi les 400 examines")
+
+
+def test_la_legende_du_tableau_suit_la_decision():
+    """« ce qui a le plus pesé » n'a pas le même sens selon l'issue."""
+    accorde = restitution.construire(decision_type(etat="accorde"))
+    refuse = restitution.construire(decision_type(etat="refuse"))
+
+    assert "en faveur de votre demande" in accorde
+    assert "contre votre demande" in refuse
