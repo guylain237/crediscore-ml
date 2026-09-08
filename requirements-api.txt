@@ -32,3 +32,8 @@ psycopg[binary]>=3.2
 # paquet, pandas ne sait pas ouvrir une URL s3:// et le modele ne peut lire
 # que la copie locale.
 s3fs>=2024.6
+
+# Lecture des formulaires HTML de la page de restitution. Sans lui,
+# FastAPI refuse un envoi form-encoded avec une erreur 422 — et le
+# bouton de demande de reexamen serait inoperant.
+python-multipart>=0.0.9

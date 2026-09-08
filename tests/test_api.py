@@ -192,3 +192,43 @@ def test_sonde_signale_la_panne_au_lieu_de_mourir(client, monkeypatch):
     assert corps["statut"] == "degrade"
     assert corps["journal_joignable"] is False
     assert "base injoignable" in corps["journal_erreur"]
+
+
+def test_la_page_de_restitution_est_servie(client, dossiers):
+    """La decision doit etre lisible par un humain, pas seulement par un
+    programme (article 22 du RGPD)."""
+    identifiant = next(iter(dossiers.values()))
+    rendue = client.post("/score", json={"sk_id_curr": identifiant}).json()
+
+    reponse = client.get(f"/decisions/{rendue['id_decision']}/restitution")
+    assert reponse.status_code == 200
+    assert reponse.headers["content-type"].startswith("text/html")
+    assert '<html lang="fr">' in reponse.text
+
+
+def test_le_formulaire_de_reexamen_fonctionne(client, dossiers):
+    """Le bouton de la page doit reellement enregistrer le reexamen.
+
+    La route JSON /revue n'accepte pas un envoi form-encoded : un navigateur
+    aurait recu une erreur 422. Le droit au reexamen aurait ete affiche mais
+    inoperant — une conformite de facade.
+    """
+    identifiant = next(iter(dossiers.values()))
+    rendue = client.post("/score", json={"sk_id_curr": identifiant}).json()
+
+    reponse = client.post(
+        f"/decisions/{rendue['id_decision']}/revue-formulaire",
+        data={"identifiant_analyste": "analyste.martin"},
+        follow_redirects=False,
+    )
+    # 303 et non 302 : apres un POST, on redirige en GET pour qu'un
+    # rafraichissement ne renvoie pas le formulaire.
+    assert reponse.status_code == 303
+
+    page = client.get(f"/decisions/{rendue['id_decision']}/restitution")
+    assert "analyste.martin" in page.text
+
+
+def test_une_restitution_inconnue_rend_404(client):
+    reponse = client.get("/decisions/999999/restitution")
+    assert reponse.status_code == 404

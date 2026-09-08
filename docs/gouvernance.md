@@ -167,6 +167,35 @@ temporaires via IAM Identity Center pour les opérateurs, rôles IAM pour les
 applications. L'identité applicative n'a accès qu'aux préfixes `curated/` en
 lecture et `audit/` en écriture — **jamais aux données brutes**.
 
+### P-11 — Accessibilité de la restitution
+
+Toute décision communiquée à un demandeur doit être **perceptible** par lui,
+quelle que soit sa situation de handicap.
+
+> **Cette politique naît d'une lacune constatée le 08/09/2026.** Le contrôle
+> C-12 impose un réexamen humain, et la zone grise l'impose *avant* la décision
+> sur 11,7 % des dossiers. Mais l'analyste chargé de ce réexamen recevait du
+> JSON brut, et le demandeur ne recevait rien : le projet calculait
+> l'explication en 24 millisecondes et ne l'affichait nulle part.
+>
+> **L'article 22 du RGPD et le RGAA portent sur le même écran.** L'article 22
+> donne le droit à une explication ; le RGAA exige qu'elle soit perçue. Un
+> demandeur aveugle doit pouvoir *entendre* ses cinq motifs ; un demandeur
+> daltonien ne doit pas dépendre d'une pastille rouge pour comprendre qu'il est
+> refusé. Une explication imperceptible n'est pas une explication.
+>
+> **Conséquence opérationnelle.** L'écran de restitution
+> (`GET /decisions/{id}/restitution`) est construit selon le RGAA 4.1 : langue
+> déclarée, décision écrite en toutes lettres, contraste calculé et non estimé,
+> tableau à véritables en-têtes, navigation au clavier, et **aucun JavaScript
+> requis** pour lire sa décision. Onze critères sont vérifiés automatiquement
+> par `tests/test_restitution.py`.
+>
+> **Ce que la politique n'affirme pas.** Aucun taux de conformité n'est
+> déclaré : un taux au sens du décret 2019-768 suppose l'évaluation des 106
+> critères par un auditeur, y compris ceux qu'aucun programme ne sait juger.
+> Voir `docs/accessibilite.md`, §6.
+
 ### P-10 — Traçabilité des scores fournis par des tiers
 
 Aucun score externe ne peut peser dans une décision sans que sa composition
@@ -429,6 +458,7 @@ qu'on peut changer discrètement n'est pas une politique.**
 
 | Version | Date | Modification |
 |---|---|---|
+| 1.4 | 08/09/2026 | **Politique P-11 — accessibilité de la restitution.** Le réexamen humain qu'impose C-12 se faisait sur du JSON brut : il manquait l'écran. Il est créé, construit selon le RGAA 4.1, et 11 critères y sont vérifiés automatiquement — dont le contraste, **calculé** et non estimé. Aucun taux de conformité n'est déclaré : un audit reste requis (`docs/accessibilite.md`). |
 | 1.3 | 02/09/2026 | **C-10 et C-11 exécutés — les douze contrôles sont tenus.** La détection de dérive distingue un changement de *population* d'un changement de *couverture de source* : réentraîner sur le second graverait un défaut d'alimentation dans le modèle. Elle a trouvé, dès sa première mesure, que `bureau_balance` couvre 30 % des dossiers d'entraînement contre 86,8 % de ceux à scorer. C-11 devient exécutable : 6 tests au lieu d'une intention. |
 | 1.2 | 02/09/2026 | **C-2 et C-12 exécutés.** L'API de scoring journalise chaque décision et refuse d'en rendre une qu'elle ne peut pas tracer. Introduction d'une **zone grise** (0,080 à 0,115), déduite de la courbe de coût et non choisie : sur 11,7 % des dossiers, la machine ne décide pas seule. C-5 étendu à la lisibilité — les 223 variables ont un libellé français. |
 | 1.1 | 01/09/2026 | **C-3, C-4 et C-5 exécutés.** C-4 a bloqué le déploiement (M-1 = 0,3082 sur l'âge, seuil 0,05) ; dérogation motivée au §8.9 de la note d'équité. Nouvelle politique **P-10** — traçabilité des scores de tiers, née de la corrélation mesurée entre `EXT_SOURCE_1` et l'âge. |

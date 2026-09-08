@@ -31,12 +31,13 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, Form, HTTPException, Response
+from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
 RACINE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RACINE))
-from api import journal
+from api import journal, restitution
 from api.decision import moteur
 
 # Exigence C-5 : moins d'une seconde pour expliquer un dossier. On garde la
@@ -172,6 +173,47 @@ def revue(id_decision: int, demande: DemandeRevue):
         "revue_humaine": True,
         "identifiant_analyste": demande.identifiant_analyste,
     }
+
+
+@application.post("/decisions/{id_decision}/revue-formulaire")
+def revue_depuis_formulaire(id_decision: int, identifiant_analyste: str = Form(...)):
+    """Recoit le formulaire de la page de restitution (controle C-12).
+
+    Une route distincte de /revue, et ce n'est pas de la duplication : celle-la
+    attend du JSON, un navigateur envoie du form-encoded. Sans cette route, le
+    bouton de la page renverrait une erreur 422 — le droit au reexamen serait
+    affiche mais inoperant.
+
+    On redirige apres l'envoi plutot que de rendre la page directement. C'est
+    le motif POST-redirect-GET : sans lui, un rafraichissement de la page
+    renverrait le formulaire une seconde fois, et l'utilisateur qui revient en
+    arriere verrait un avertissement de son navigateur.
+    """
+    if not journal.marquer_revue(id_decision, identifiant_analyste):
+        raise HTTPException(status_code=404, detail=f"Decision {id_decision} inconnue")
+
+    return RedirectResponse(
+        url=f"/decisions/{id_decision}/restitution", status_code=303
+    )
+
+
+@application.get("/decisions/{id_decision}/restitution", response_class=HTMLResponse)
+def restituer(id_decision: int):
+    """La decision, lisible par un humain (article 22 du RGPD, RGAA).
+
+    Sans cette page, le reexamen humain qu'impose le controle C-12 se ferait
+    sur du JSON brut, et le demandeur ne verrait jamais ses motifs. Le droit a
+    l'explication suppose que l'explication soit percue.
+
+    La page est accessible par construction : langue declaree, decision ecrite
+    en toutes lettres et non signalee par une couleur seule, tableau a vrais
+    en-tetes, navigation au clavier, et AUCUN JavaScript requis pour lire sa
+    decision.
+    """
+    ligne = journal.relire(id_decision)
+    if ligne is None:
+        raise HTTPException(status_code=404, detail=f"Decision {id_decision} inconnue")
+    return HTMLResponse(restitution.construire(ligne))
 
 
 @application.get("/decisions/{id_decision}")
