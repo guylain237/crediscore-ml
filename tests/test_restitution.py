@@ -171,7 +171,8 @@ def test_la_decision_est_ecrite_en_toutes_lettres(etat):
 def test_le_sens_de_chaque_motif_est_un_mot():
     """RGAA 3.1 — un motif defavorable doit se lire, pas se deviner."""
     page = restitution.construire(decision_type())
-    assert "defavorable" in page
+    # Accentue : "defavorable" est du code interne, le demandeur lit du francais.
+    assert "défavorable" in page
     assert "favorable" in page
 
 
@@ -302,3 +303,123 @@ def test_le_reexamen_realise_est_affiche_avec_son_auteur():
     )
     assert "analyste.durand" in page
     assert "<form" not in page, "le formulaire ne doit plus etre propose"
+
+
+# --- Lisibilite des valeurs montrees au demandeur ----------------------------
+#
+# Ces tests sont nes d'une capture d'ecran. La page affichait "-637.0" comme
+# anciennete dans l'emploi, "Business Entity Type 3" comme secteur, et
+# "0.13937578009978951" comme score. Les tests de structure ci-dessus passaient
+# tous : ils verifiaient le HTML, pas ce qu'on y lit.
+
+
+def test_un_nombre_de_jours_negatif_devient_une_duree():
+    """-637 jours veut dire "il y a un an et neuf mois", pas "moins 637"."""
+    from api import valeurs
+
+    assert valeurs.formater("DAYS_EMPLOYED", -637.0) == "il y a 1 an et 9 mois"
+    assert valeurs.formater("DAYS_REGISTRATION", -4502) == "il y a 12 ans et 4 mois"
+
+
+def test_un_retard_n_est_pas_une_date():
+    """LE PIEGE de ce module, et il aurait inverse le sens d'un motif.
+
+    INSTAL_RETARD_JOURS_MEAN vaut -10 parce que le client paie DIX JOURS EN
+    AVANCE. Le classer avec les dates passees aurait affiche "il y a 10 jours"
+    a la place de "10 jours d'avance" — un comportement favorable presente
+    comme une date sans rapport.
+    """
+    from api import valeurs
+
+    assert valeurs.formater("INSTAL_RETARD_JOURS_MEAN", -10) == "10 jours d'avance"
+    assert valeurs.formater("INSTAL_RETARD_MAX_12M", 21) == "21 jours de retard"
+    assert valeurs.formater("INSTAL_RETARD_MAX_12M", 0) == "à l'heure"
+
+
+def test_aucune_modalite_n_est_laissee_en_anglais():
+    """Un demandeur francais ne doit pas lire son motif de refus en anglais."""
+    from api import valeurs
+
+    assert valeurs.formater("ORGANIZATION_TYPE", "Business Entity Type 3") == (
+        "Entreprise (type 3)"
+    )
+    assert valeurs.formater("ORGANIZATION_TYPE", "Self-employed") == "Indépendant"
+    assert valeurs.formater("OCCUPATION_TYPE", "Drivers") == "Conducteur"
+    assert valeurs.formater("NAME_EDUCATION_TYPE", "Higher education") == (
+        "Enseignement supérieur"
+    )
+
+
+def test_les_modalites_couvrent_toutes_les_valeurs_du_socle():
+    """Une modalite oubliee ressortirait en anglais sur la page.
+
+    Le test lit les modalites reellement presentes dans les donnees plutot que
+    de faire confiance a la table.
+    """
+    from api import valeurs
+
+    attendues = {
+        "ORGANIZATION_TYPE": 58, "OCCUPATION_TYPE": 18, "NAME_INCOME_TYPE": 8,
+        "NAME_EDUCATION_TYPE": 5, "NAME_HOUSING_TYPE": 6, "NAME_TYPE_SUITE": 7,
+        "WEEKDAY_APPR_PROCESS_START": 7, "WALLSMATERIAL_MODE": 7,
+        "FONDKAPREMONT_MODE": 4, "HOUSETYPE_MODE": 3, "NAME_CONTRACT_TYPE": 2,
+        "FLAG_OWN_CAR": 2, "FLAG_OWN_REALTY": 2, "EMERGENCYSTATE_MODE": 2,
+    }
+    for variable, nombre_attendu in attendues.items():
+        assert variable in valeurs.MODALITES, f"{variable} sans traduction"
+        assert len(valeurs.MODALITES[variable]) >= nombre_attendu, (
+            f"{variable} : {len(valeurs.MODALITES[variable])} traductions "
+            f"pour {nombre_attendu} modalites dans les donnees"
+        )
+
+
+def test_les_nombres_sont_arrondis_et_a_la_francaise():
+    """Dix-sept decimales sont illisibles, et un lecteur d'ecran les prononce."""
+    from api import valeurs
+
+    assert valeurs.formater("EXT_SOURCE_3", 0.13937578009978951) == "0,14"
+    assert "," in valeurs.formater("RATIO_ANNUITE_CREDIT", 0.0614)
+    assert "." not in valeurs.formater("EXT_SOURCE_2", 0.3217)
+
+
+def test_le_separateur_de_milliers_est_insecable():
+    """Un montant ne doit pas se couper en fin de ligne.
+
+    Sans espace insecable, on lirait "24" a la fin d'une ligne et "903 EUR" au
+    debut de la suivante.
+    """
+    from api import valeurs
+
+    montant = valeurs.formater("AMT_ANNUITY", 24903.0)
+    assert montant == f"24{valeurs.ESPACE_MILLIERS}903 €"
+    assert " " not in montant.replace(" €", ""), "espace ordinaire dans le montant"
+
+
+def test_le_sens_est_accentue():
+    """"defavorable" est du code interne ; le demandeur lit du francais."""
+    from api import valeurs
+
+    assert valeurs.sens("defavorable") == "défavorable"
+
+
+def test_la_page_ne_montre_plus_de_valeur_brute():
+    """Le controle de bout en bout : ce que la capture d'ecran montrait."""
+    decision = decision_type()
+    decision["facteurs"] = [
+        {"variable": "DAYS_EMPLOYED", "libelle": "anciennete dans l'emploi",
+         "contribution": 0.3, "sens": "defavorable", "valeur": "-637.0"},
+        {"variable": "ORGANIZATION_TYPE", "libelle": "secteur d'activite",
+         "contribution": 0.2, "sens": "defavorable", "valeur": "Business Entity Type 3"},
+        {"variable": "EXT_SOURCE_3", "libelle": "score externe n3",
+         "contribution": 0.1, "sens": "defavorable", "valeur": "0.13937578009978951"},
+    ]
+    page = restitution.construire(decision)
+
+    assert "-637.0" not in page
+    assert "Business Entity Type 3" not in page
+    assert "0.13937578009978951" not in page
+
+    assert "il y a 1 an et 9 mois" in page
+    assert "Entreprise (type 3)" in page
+    assert "0,14" in page
+    assert "défavorable" in page

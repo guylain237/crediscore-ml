@@ -33,6 +33,8 @@ connexion rapide, ni d'un navigateur recent.
 
 from html import escape
 
+from api import valeurs
+
 # Couleurs de la page. Elles vivent ici plutot que dans une feuille de style
 # separee pour une raison precise : les tests calculent le contraste a partir
 # de ces valeurs. Une couleur choisie a l'oeil ne serait verifiee par personne.
@@ -122,14 +124,13 @@ def ligne_motif(rang, facteur):
 
     Le sens est ecrit ("defavorable"), jamais signale par la seule couleur.
     """
-    valeur = facteur.get("valeur")
-    valeur = "non renseignée" if valeur in (None, "") else str(valeur)
+    lisible = valeurs.formater(facteur.get("variable", ""), facteur.get("valeur"))
     return (
         "        <tr>"
         f"<td>{rang}</td>"
         f"<td>{escape(str(facteur['libelle']))}</td>"
-        f"<td>{escape(valeur)}</td>"
-        f"<td>{escape(str(facteur['sens']))}</td>"
+        f"<td>{escape(lisible)}</td>"
+        f"<td>{escape(valeurs.sens(facteur['sens']))}</td>"
         "</tr>"
     )
 
