@@ -88,9 +88,9 @@ métriques avec leur effectif**, jamais silencieusement écartés.
 
 | Attribut | Statut comme variable prédictive | Statut pour l'audit | Sous-populations |
 |---|---|---|---|
-| `CODE_GENDER` | ⛔ **interdit** (P-4) | ✅ conservé | F · M *(XNA exclu, n = 4)* |
-| `DAYS_BIRTH` (âge) | ⛔ **interdit** (P-4) | ✅ conservé | 18-25 · 26-35 · 36-50 · 51-65 · 65+ |
-| `NAME_FAMILY_STATUS` | ⛔ **interdit** (P-4) | ✅ conservé | Married · Single · Civil marriage · Separated · Widow |
+| `CODE_GENDER` | ⛔ **interdit** (P-4) | conservé | F · M *(XNA exclu, n = 4)* |
+| `DAYS_BIRTH` (âge) | ⛔ **interdit** (P-4) | conservé | 18-25 · 26-35 · 36-50 · 51-65 · 65+ |
+| `NAME_FAMILY_STATUS` | ⛔ **interdit** (P-4) | conservé | Married · Single · Civil marriage · Separated · Widow |
 
 **Règle d'effectif minimal : 500 individus dans le jeu de test.** En dessous, la
 métrique n'est pas calculée et le groupe est déclaré avec son effectif. Vérifié :
@@ -213,12 +213,12 @@ précédente a échoué.
 
 | # | Action | Licéité |
 |---|---|---|
-| 1 | Instruire les proxys (§6) et retirer les variables sans justification autonome | ✅ |
-| 2 | Rééquilibrer l'échantillon d'entraînement (repondération par groupe) | ✅ l'attribut n'est utilisé qu'à l'entraînement |
-| 3 | Optimisation sous contrainte d'équité (`fairlearn.reductions.ExponentiatedGradient`, contrainte d'odds égalisées) | ✅ contrainte à l'apprentissage, pas à l'inférence |
-| 4 | Recalibrer les probabilités globalement | ✅ |
-| 5 | Saisir le comité d'équité — arbitrage explicite | ✅ |
-| 6 | **Refuser le déploiement** | ✅ toujours possible |
+| 1 | Instruire les proxys (§6) et retirer les variables sans justification autonome | licite |
+| 2 | Rééquilibrer l'échantillon d'entraînement (repondération par groupe) | licite — l'attribut n'est utilisé qu'à l'entraînement |
+| 3 | Optimisation sous contrainte d'équité (`fairlearn.reductions.ExponentiatedGradient`, contrainte d'odds égalisées) | licite — contrainte à l'apprentissage, pas à l'inférence |
+| 4 | Recalibrer les probabilités globalement | licite |
+| 5 | Saisir le comité d'équité — arbitrage explicite | licite |
+| 6 | **Refuser le déploiement** | licite — toujours possible |
 
 ### L'option écartée, et pourquoi
 

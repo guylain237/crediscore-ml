@@ -444,18 +444,18 @@ propriétaire, un artefact et une date.
 
 | # | Contrôle | Artefact | Statut |
 |---|---|---|---|
-| **C-1** | Exclusion des variables sensibles, **bloquante** | `src/fairness/contract.py` · `tests/test_no_sensitive_features.py` · `.github/workflows/ci.yml` | ✅ **16/08** — 14 assertions, **exécutées à chaque `push`** |
-| **C-2** | Journal d'audit de chaque décision, **bloquant** | `api/journal.py` · `journal.decisions` · `tests/test_api.py` | ✅ **02/09** — si le journal est indisponible, l'API renvoie 500 **sans rendre la décision** ; un test le vérifie en cassant volontairement l'écriture |
-| **C-3** | Détection de proxys par corrélation aux attributs protégés | `src/fairness/proxys.py` · `docs/resultats_proxys.csv` | ✅ **31/08** — 223 variables × 3 attributs, valeur **et** motif d'absence · 5 proxys instruits, 1 retirée |
-| **C-4** | Mesures d'équité chiffrées par sous-population, **bloquante** | `src/fairness/audit.py` · `docs/note_equite.md` §8 · `docs/resultats_equite.csv` | ✅ **31/08** — M-1 à M-6 sur 3 axes · **a bloqué le déploiement** : M-1 = 0,3082 sur l'âge |
-| **C-5** | Explicabilité SHAP globale et locale (< 1 s) **et lisible** | `src/explain/expliquer.py` · `docs/shap_importance_globale.csv` | ✅ **31/08** — 24 ms/dossier · 150 variables montrables, toutes libellées en français |
-| **C-6** | Contrôles qualité **bloquants** | `dag_ingestion_quotidienne.py` (sources) · `dag_construction_variables.py` (socle) | ✅ 29/08 — 3 + 4 contrôles, un échec bloque la publication |
-| **C-7** | Pseudonymisation des identifiants dans les journaux | `pipelines/spark_jobs/pseudonyme.py` | ✅ 30/08 |
-| **C-8** | Chiffrement au repos et en transit | `infra/datalake.tf` (S3) · `infra/compute.tf` (disque VM) | ✅ 30/07 · ✅ 22/08 |
-| **C-9** | IAM au moindre privilège | Identity Center · `infra/iam.tf` (2 rôles dérivés du contrat des zones) | ✅ 29/07 · ✅ 22/08 — écriture dans `raw/` refusée, vérifié le 29/08 |
-| **C-10** | Détection de dérive PSI/KS → réentraînement | `src/monitoring/derive.py` · DAG `surveillance_derive` · `docs/resultats_derive.csv` | ✅ **02/09** — distingue dérive de **population** (réentraîner) et de **couverture** (corriger la source) ; a trouvé une asymétrie réelle de `bureau_balance` dès la première mesure |
-| **C-11** | Reproductibilité : graine, verrous, hachage | `tests/test_reproductibilite.py` · `requirements.lock.txt` · `.terraform.lock.hcl` · empreinte MLflow | ✅ **02/09** — 6 tests exécutables : découpage déterministe, graine hors du code, verrou sans version souple |
-| **C-12** | Procédure de contrôle humain (réexamen) | `POST /decisions/{id}/revue` · zone grise de `configs/seuil_decision.yaml` | ✅ **02/09** — tout refus ouvre le réexamen ; la **zone grise l'impose** avant décision sur 11,7 % des dossiers |
+| **C-1** | Exclusion des variables sensibles, **bloquante** | `src/fairness/contract.py` · `tests/test_no_sensitive_features.py` · `.github/workflows/ci.yml` | Appliqué le **16/08** — 14 assertions, **exécutées à chaque `push`** |
+| **C-2** | Journal d'audit de chaque décision, **bloquant** | `api/journal.py` · `journal.decisions` · `tests/test_api.py` | Appliqué le **02/09** — si le journal est indisponible, l'API renvoie 500 **sans rendre la décision** ; un test le vérifie en cassant volontairement l'écriture |
+| **C-3** | Détection de proxys par corrélation aux attributs protégés | `src/fairness/proxys.py` · `docs/resultats_proxys.csv` | Appliqué le **31/08** — 223 variables × 3 attributs, valeur **et** motif d'absence · 5 proxys instruits, 1 retirée |
+| **C-4** | Mesures d'équité chiffrées par sous-population, **bloquante** | `src/fairness/audit.py` · `docs/note_equite.md` §8 · `docs/resultats_equite.csv` | Appliqué le **31/08** — M-1 à M-6 sur 3 axes · **a bloqué le déploiement** : M-1 = 0,3082 sur l'âge |
+| **C-5** | Explicabilité SHAP globale et locale (< 1 s) **et lisible** | `src/explain/expliquer.py` · `docs/shap_importance_globale.csv` | Appliqué le **31/08** — 24 ms/dossier · 150 variables montrables, toutes libellées en français |
+| **C-6** | Contrôles qualité **bloquants** | `dag_ingestion_quotidienne.py` (sources) · `dag_construction_variables.py` (socle) | Appliqué le 29/08 — 3 + 4 contrôles, un échec bloque la publication |
+| **C-7** | Pseudonymisation des identifiants dans les journaux | `pipelines/spark_jobs/pseudonyme.py` | Appliqué le 30/08 |
+| **C-8** | Chiffrement au repos et en transit | `infra/datalake.tf` (S3) · `infra/compute.tf` (disque VM) | Appliqué le 30/07 · 22/08 |
+| **C-9** | IAM au moindre privilège | Identity Center · `infra/iam.tf` (2 rôles dérivés du contrat des zones) | Appliqué le 29/07 · 22/08 — écriture dans `raw/` refusée, vérifié le 29/08 |
+| **C-10** | Détection de dérive PSI/KS → réentraînement | `src/monitoring/derive.py` · DAG `surveillance_derive` · `docs/resultats_derive.csv` | Appliqué le **02/09** — distingue dérive de **population** (réentraîner) et de **couverture** (corriger la source) ; a trouvé une asymétrie réelle de `bureau_balance` dès la première mesure |
+| **C-11** | Reproductibilité : graine, verrous, hachage | `tests/test_reproductibilite.py` · `requirements.lock.txt` · `.terraform.lock.hcl` · empreinte MLflow | Appliqué le **02/09** — 6 tests exécutables : découpage déterministe, graine hors du code, verrou sans version souple |
+| **C-12** | Procédure de contrôle humain (réexamen) | `POST /decisions/{id}/revue` · zone grise de `configs/seuil_decision.yaml` | Appliqué le **02/09** — tout refus ouvre le réexamen ; la **zone grise l'impose** avant décision sur 11,7 % des dossiers |
 
 **Règle :** un contrôle qui dépasse sa date sans être livré devient un point de
 non-conformité à déclarer explicitement en soutenance. Le masquer serait la faute

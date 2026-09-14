@@ -146,9 +146,9 @@ contraste("#767676", "#ffffff") ==  4,54     # le gris de référence, à la lim
 
 | Régression introduite | Détection |
 |---|---|
-| `lang="fr"` retiré | ✅ 1 échec |
-| couleur du refus dégradée à `#d98b8b` | ✅ 1 échec — « contraste insuffisant : refuse 2,26 pour 1 » |
-| `scope="col"` retiré des en-têtes | ✅ 1 échec |
+| `lang="fr"` retiré | 1 échec |
+| couleur du refus dégradée à `#d98b8b` | 1 échec — « contraste insuffisant : refuse 2,26 pour 1 » |
+| `scope="col"` retiré des en-têtes | 1 échec |
 
 ---
 

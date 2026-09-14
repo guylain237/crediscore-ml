@@ -51,7 +51,7 @@ Registre tenu au titre du **§9.4 du [plan de gouvernance](gouvernance.md)**.
   | Contrôles C-2, C-12 (log d'audit, réexamen humain) | AIA | 29/08 |
   | Contrôle C-10 (dérive) | AIA | 01/09 |
   | Report des résultats au §8 de la note d'équité | AIA | 28/08 |
-  | ~~Mise en place d'une CI exécutant `pytest` à chaque `push`~~ | AIA | ✅ **fait le 16/08** — `.github/workflows/ci.yml` |
+  | ~~Mise en place d'une CI exécutant `pytest` à chaque `push`~~ | AIA | **fait le 16/08** — `.github/workflows/ci.yml` |
   | Production de l'AIPD formelle | DPO | avant exploitation réelle |
 
 - **Prochaine revue :** **28/08/2026** — revue d'équité, à la publication des
