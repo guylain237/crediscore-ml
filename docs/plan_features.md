@@ -51,7 +51,7 @@ Corrélations absolues avec la cible, mesurées sur les 307 511 dossiers :
 Deux enseignements. Les trois scores externes `EXT_SOURCE_*` dominent tout le
 reste d'un facteur deux — ce sont des scores de bureau de crédit déjà agrégés,
 donc le modèle repose en grande partie sur un jugement extérieur, ce qu'il faut
-assumer devant le jury.
+assumer explicitement.
 
 Et surtout : **un taux de nuls élevé n'est pas un critère d'élimination**.
 `EXT_SOURCE_1` manque dans 56 % des dossiers et reste la troisième variable la
@@ -264,8 +264,8 @@ et comparer son AUC à celui du modèle conforme. L'écart chiffre le coût de l
 conformité.
 
 Ce modèle témoin ne sera **jamais déployé** : il sert uniquement à documenter
-l'arbitrage, avec ses résultats consignés dans MLflow. Un jury attend d'un
-architecte qu'il connaisse le prix de ses contraintes — pas qu'il prétende
+l'arbitrage, avec ses résultats consignés dans MLflow. Un architecte doit
+connaître le prix de ses contraintes — pas prétendre
 qu'elles sont gratuites.
 
 ---

@@ -9,7 +9,7 @@ trop eleve.
 
 Maintenant que la decision est prise et tenue, on peut la chiffrer. Un
 arbitrage documente vaut mieux qu'un arbitrage suppose : le comite d'equite
-doit savoir ce que sa regle coute, et le jury a le droit de le demander.
+doit savoir ce que sa regle coute, et pouvoir le justifier.
 
 CE SCRIPT CONTOURNE VOLONTAIREMENT LE CONTROLE C-1.
 

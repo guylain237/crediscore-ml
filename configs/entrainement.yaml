@@ -8,7 +8,7 @@
 #
 # Elle sert au decoupage des jeux ET a l'entrainement. Ne jamais la redefinir
 # localement : c'est ce qui permet de rejouer a l'identique une experience
-# presentee au jury (strategie_decoupage.md section 5).
+# deja publiee (strategie_decoupage.md section 5).
 graine: 42
 
 # Decoupage 60 / 20 / 20, aleatoire stratifie sur la cible.

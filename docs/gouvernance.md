@@ -12,13 +12,13 @@ intentions : il fixe des politiques numérotées (`P-n`) et des contrôles
 techniques numérotés (`C-n`) que le code, l'infrastructure et les pipelines
 doivent respecter.
 
-Trois règles d'usage, à tenir jusqu'à la soutenance :
+Trois règles d'usage, à tenir pour toute la durée de vie du document :
 
 1. **Toute décision technique cite la politique qu'elle applique.** Une entrée de
    `docs/decisions.md` sans référence à un `P-n` est une décision hors cadre.
 2. **Tout contrôle annoncé ici existe ou porte une date d'existence.** Un
    contrôle décrit mais absent du dépôt est une non-conformité — c'est le premier
-   point qu'un auditeur vérifie, et le premier qu'un jury cherche.
+   point qu'un auditeur vérifie.
 3. **Ce document ne se modifie pas en silence** : voir §10.
 
 > **Précédent qui justifie la règle 2.** La décision D-003 affirmait qu'un test
@@ -62,7 +62,7 @@ s'appliquent **depuis le 2 août 2026**. Ce projet est donc conçu sous un régi
 
 > ⚠️ **À vérifier avant l'oral :** le calendrier d'application a fait l'objet de
 > discussions de report partiel au niveau européen. Confirmer l'état définitif du
-> texte à la date de soutenance — un jury peut poser la question, et répondre
+> texte avant toute publication de ce document — pouvoir répondre
 > « je l'ai vérifié le … » vaut mieux que réciter une date.
 
 ### 1.4 Ce que la qualification impose, article par article
@@ -458,14 +458,14 @@ propriétaire, un artefact et une date.
 | **C-12** | Procédure de contrôle humain (réexamen) | `POST /decisions/{id}/revue` · zone grise de `configs/seuil_decision.yaml` | Appliqué le **02/09** — tout refus ouvre le réexamen ; la **zone grise l'impose** avant décision sur 11,7 % des dossiers |
 
 **Règle :** un contrôle qui dépasse sa date sans être livré devient un point de
-non-conformité à déclarer explicitement en soutenance. Le masquer serait la faute
+non-conformité à déclarer explicitement. Le masquer serait la faute
 la plus grave de ce projet.
 
 ---
 
 ## 8. Matrice de traçabilité
 
-Le tableau que le jury peut dérouler de bout en bout : de l'exigence
+Le tableau se déroule de bout en bout : de l'exigence
 réglementaire jusqu'au fichier qui la met en œuvre.
 
 | Exigence | Source | Politique | Contrôle | Preuve vérifiable |

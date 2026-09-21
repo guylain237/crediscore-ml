@@ -1,7 +1,7 @@
 # Journal des décisions d'architecte — CrediScore (solution IA)
 
 Chaque décision est notée au moment où elle est prise : contexte, options, choix, raison.
-C'est la matière première des questions/réponses du jury.
+C'est la matière première de toute revue ultérieure.
 
 ---
 
@@ -10,7 +10,7 @@ C'est la matière première des questions/réponses du jury.
 - **Contexte :** le Bloc 4 exige deux dépôts distincts (développement IA / CI-CD).
 - **Options :** monorepo avec dossiers ; deux dépôts privés ; deux dépôts publics.
 - **Choix :** deux dépôts publics — `crediscore-ml` et `crediscore-mlops`.
-- **Raison :** exigence explicite du référentiel ; publics pour que le jury accède
+- **Raison :** exigence explicite du référentiel ; publics pour que la revue externe accède
   sans friction ; aucune donnée personnelle réelle n'y sera versionnée (jeu public
   anonymisé, non commité).
 
@@ -32,7 +32,7 @@ C'est la matière première des questions/réponses du jury.
   et testée automatiquement en CI (`tests/test_no_sensitive_features.py`) — le build
   échoue si une variable sensible entre dans les features du modèle.
 - **Raison :** transforme une exigence réglementaire en garde-fou technique
-  vérifiable et démontrable au jury.
+  vérifiable et démontrable.
 
 > **Correctif du 16/08/2026 — à lire avec la décision.** Cette décision décrivait
 > un contrôle qui **n'existait pas** : `tests/test_no_sensitive_features.py` était
@@ -54,7 +54,7 @@ C'est la matière première des questions/réponses du jury.
   `.venv\Scripts\python.exe`. Les images Docker (entraînement, API) réinstallent
   les mêmes `requirements.txt`, garantissant l'identité poste/production.
 - **Raison :** isolation stricte des dépendances, reproductibilité vérifiable par
-  le jury (`requirements.txt` = source de vérité unique), et cohérence avec les
+  un tiers (`requirements.txt` = source de vérité unique), et cohérence avec les
   conteneurs déployés. Remplace la décision initiale « Anaconda pour l'exploration ».
 
 ## D-005 — 05/08/2026 — Découpage stratifié aléatoire, et non temporel
@@ -124,15 +124,15 @@ C'est la matière première des questions/réponses du jury.
   comparer son AUC à celui du modèle conforme, et consigner l'écart dans MLflow.
   Ce modèle témoin n'est **jamais déployé** ni exposé.
 - **Raison :** la conformité a un coût de performance ; le mesurer permet de le
-  défendre plutôt que de le subir. Un jury attend d'un architecte qu'il connaisse
-  le prix de ses contraintes, pas qu'il prétende qu'elles sont gratuites. Le
+  défendre plutôt que de le subir. Un architecte doit connaître le prix de ses
+  contraintes, pas prétendre qu'elles sont gratuites. Le
   chiffre alimentera directement la note d'équité du Bloc 1.
 
 ## D-009 — 16/08/2026 — Un plan de gouvernance opposable, pas déclaratif
 
 - **Contexte :** le Bloc 1 est intégralement documentaire. Le risque n'est pas de
   produire trop peu de texte, mais d'en produire un que le projet ne suit pas —
-  un jury vérifie la cohérence entre ce qui est écrit et ce que contient le dépôt.
+  toute revue vérifie la cohérence entre ce qui est écrit et ce que contient le dépôt.
   Le cas D-003 l'a démontré : un contrôle annoncé mais absent.
 - **Options :** un document de gouvernance descriptif et générique ; un document
   adossé au code ; deux documents séparés sans lien.

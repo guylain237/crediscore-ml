@@ -552,7 +552,7 @@ faudra prouver pour revenir.
 
 ## 9. Limites reconnues
 
-Trois limites qui seront **énoncées en soutenance**, pas dissimulées.
+Trois limites **énoncées explicitement**, pas dissimulées.
 
 **L-1 — Aucune donnée d'origine ni d'appartenance ethnique.** Le jeu de données
 n'en contient pas. La discrimination fondée sur l'origine — pourtant un critère

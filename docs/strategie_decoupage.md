@@ -177,13 +177,13 @@ conformité — aux conséquences juridiques bien plus lourdes.
 
 Un résultat que l'on ne sait pas reproduire n'est pas un résultat. Ces quatre
 éléments réunis permettent de rejouer à l'identique n'importe quelle expérience
-présentée au jury.
+publiée.
 
 ---
 
 ## 6. Ce que ce protocole ne démontre pas
 
-Par honnêteté méthodologique, les limites à énoncer devant le jury :
+Par honnêteté méthodologique, les limites à énoncer :
 
 - **Aucune garantie de tenue dans le temps** — impossible à mesurer ici (§1).
 - **Aucune garantie sur une population différente** : le modèle est validé sur
