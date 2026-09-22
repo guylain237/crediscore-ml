@@ -467,3 +467,46 @@ def test_la_legende_du_tableau_suit_la_decision():
 
     assert "en faveur de votre demande" in accorde
     assert "contre votre demande" in refuse
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LA PAGE D'ACCUEIL
+#
+# Elle est le point d'entree du service : c'est par elle qu'un demandeur ou un
+# analyste arrive. Les memes criteres que l'ecran de restitution s'y
+# appliquent, et pour la meme raison — une page qu'on ne peut pas utiliser au
+# clavier ou sans JavaScript ferme le service a une partie des personnes.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def test_l_accueil_declare_sa_langue():
+    assert 'lang="fr"' in restitution.page_accueil()
+
+
+def test_le_champ_de_l_accueil_a_une_etiquette():
+    """Un champ sans etiquette n'est pas annonce par un lecteur d'ecran."""
+    page = restitution.page_accueil()
+    assert 'for="dossier"' in page
+    assert 'id="dossier"' in page
+
+
+def test_l_accueil_ne_demande_aucun_javascript():
+    """Le formulaire est poste au serveur, pas traite dans le navigateur."""
+    page = restitution.page_accueil()
+    assert "<script" not in page.lower()
+    assert 'method="post"' in page
+
+
+def test_l_erreur_de_l_accueil_est_annoncee():
+    """Une erreur silencieuse laisse la personne devant un champ qui refuse.
+
+    role="alert" la fait lire des son apparition, et le texte la nomme : elle
+    ne passe pas par la seule couleur rouge (critere 3.1 du RGAA).
+    """
+    page = restitution.page_accueil("Numéro invalide")
+    assert 'role="alert"' in page
+    assert "Numéro invalide" in page
+
+
+def test_l_accueil_sans_erreur_n_affiche_pas_d_alerte():
+    assert 'role="alert"' not in restitution.page_accueil()

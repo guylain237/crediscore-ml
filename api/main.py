@@ -89,6 +89,70 @@ class DemandeRevue(BaseModel):
     )
 
 
+@application.get("/", response_class=HTMLResponse)
+def accueil():
+    """Page d'entree du service.
+
+    Sans elle, la racine renvoyait un 404 et la seule facon d'essayer l'API
+    etait l'interface Swagger — utile au developpeur, illisible pour montrer
+    le service a quelqu'un.
+    """
+    return HTMLResponse(restitution.page_accueil())
+
+
+@application.post("/scorer-formulaire")
+def scorer_depuis_formulaire(sk_id_curr: str = Form(...)):
+    """Recoit le formulaire de la page d'accueil et redirige vers la decision.
+
+    Une route distincte de /score, pour la meme raison que le formulaire de
+    reexamen : celle-la attend du JSON, un navigateur envoie du form-encoded.
+
+    Les erreurs de saisie reaffichent la page avec un message plutot que de
+    rendre une page d'erreur technique : la personne doit pouvoir corriger.
+    """
+    saisie = sk_id_curr.strip()
+    if not saisie.isdigit():
+        return HTMLResponse(
+            restitution.page_accueil(
+                "Numéro invalide : saisissez un nombre, par exemple 100013."
+            ),
+            status_code=400,
+        )
+
+    resultat = moteur.decider(int(saisie))
+    if resultat is None:
+        return HTMLResponse(
+            restitution.page_accueil(
+                f"Dossier {saisie} inconnu du magasin de variables. "
+                "Ses 223 variables n'ont pas encore été calculées."
+            ),
+            status_code=404,
+        )
+
+    # CONTROLE C-2 : rien ne sort sans avoir ete ecrit. Meme regle que /score.
+    try:
+        id_decision = journal.enregistrer(resultat)
+    except Exception as erreur:
+        journal.journaliser_trace(f"echec du journal : {erreur}")
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Decision non rendue : le journal d'audit est indisponible. "
+                "Une decision non tracee ne peut pas etre justifiee en cas de "
+                "contestation (article 22 du RGPD)."
+            ),
+        ) from erreur
+
+    journal.journaliser_trace(
+        f"dossier {journal.pseudonyme(int(saisie))} "
+        f"-> {resultat['decision']} en {resultat['duree_ms']} ms"
+    )
+
+    return RedirectResponse(
+        url=f"/decisions/{id_decision}/restitution", status_code=303
+    )
+
+
 @application.get("/sante")
 def sante(reponse: Response):
     """Etat du service. Utilise par la sonde du conteneur.

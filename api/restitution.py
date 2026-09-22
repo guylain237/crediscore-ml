@@ -239,3 +239,103 @@ def construire(decision):
 </body>
 </html>
 """
+
+
+# Trois dossiers qui donnent les trois issues possibles. 100013 vient
+# d'application_test : c'est une demande REELLE en attente de decision, dont
+# l'issue n'est pas connue. Les deux autres sont des dossiers annotes, choisis
+# parce qu'ils tombent de part et d'autre de la zone grise.
+DOSSIERS_EXEMPLE = (
+    (100013, "Accordée", "demande en attente de décision"),
+    (100056, "Réexamen par une personne", "dossier annoté"),
+    (100039, "Refusée", "dossier annoté"),
+)
+
+
+def ligne_exemple(numero, issue, nature):
+    """Une ligne du tableau des dossiers proposes."""
+    return (
+        "        <tr>"
+        f"<td>{numero}</td>"
+        f"<td>{escape(issue)}</td>"
+        f"<td>{escape(nature)}</td>"
+        "</tr>"
+    )
+
+
+def page_accueil(erreur=None):
+    """Page d'entree du service : un champ, un bouton, une decision.
+
+    Elle existe parce que l'interface Swagger, commode pour un developpeur,
+    ne l'est pas pour montrer le service a quelqu'un d'autre : il faut y
+    deplier trois menus avant d'atteindre un champ de saisie.
+
+    Aucun JavaScript, comme l'ecran de restitution. Le formulaire est poste,
+    le serveur decide, puis redirige vers la decision — le meme motif
+    POST-redirect-GET que le formulaire de reexamen.
+    """
+    exemples = "\n".join(
+        ligne_exemple(numero, issue, nature)
+        for numero, issue, nature in DOSSIERS_EXEMPLE
+    )
+
+    alerte = ""
+    if erreur:
+        # L'erreur est annoncee en toutes lettres, pas par une couleur seule,
+        # et role="alert" la fait lire par les lecteurs d'ecran des qu'elle
+        # apparait. C'est le critere 3.1 du RGAA, comme pour la decision.
+        alerte = (
+            '    <p class="decision decision-refuse" role="alert">'
+            f"{escape(erreur)}</p>\n"
+        )
+
+    return f"""<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrediScore — demander une décision</title>
+  <style>
+{feuille_de_style()}
+  </style>
+</head>
+<body>
+  <a class="saut" href="#contenu">Aller au contenu</a>
+  <main id="contenu">
+    <h1>CrediScore — demander une décision</h1>
+    <p>Saisissez un numéro de dossier. Le service rend une décision motivée,
+       l'inscrit au journal d'audit, puis affiche les motifs qui l'ont
+       emportée.</p>
+
+{alerte}
+    <form method="post" action="/scorer-formulaire">
+      <label for="dossier">Numéro de dossier</label>
+      <input type="text" id="dossier" name="sk_id_curr" inputmode="numeric"
+             value="100013" required aria-describedby="aide-dossier">
+      <p id="aide-dossier" class="discret">Un nombre, par exemple 100013.</p>
+      <button type="submit">Obtenir la décision</button>
+    </form>
+
+    <h2>Dossiers proposés</h2>
+    <table>
+      <caption>Trois dossiers qui donnent chacun une issue différente.</caption>
+      <thead>
+        <tr>
+          <th scope="col">Numéro</th>
+          <th scope="col">Issue attendue</th>
+          <th scope="col">Nature du dossier</th>
+        </tr>
+      </thead>
+      <tbody>
+{exemples}
+      </tbody>
+    </table>
+
+    <p class="discret">Le magasin de variables contient 356&nbsp;255 dossiers,
+       dont 48&nbsp;744 demandes dont l'issue n'est pas connue. Un dossier
+       absent du magasin ne peut pas être scoré&nbsp;: ses variables n'ont pas
+       encore été calculées par le pipeline.</p>
+  </main>
+</body>
+</html>
+"""
