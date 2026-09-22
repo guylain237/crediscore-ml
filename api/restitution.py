@@ -235,6 +235,8 @@ def construire(decision):
       Décision rendue le {escape(str(decision["horodatage"]))}<br>
       Modèle&nbsp;: {escape(str(decision["version_modele"]))}
     </p>
+
+    <p><a href="/">Demander une autre décision</a></p>
   </main>
 </body>
 </html>

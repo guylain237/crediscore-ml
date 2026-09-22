@@ -510,3 +510,15 @@ def test_l_erreur_de_l_accueil_est_annoncee():
 
 def test_l_accueil_sans_erreur_n_affiche_pas_d_alerte():
     assert 'role="alert"' not in restitution.page_accueil()
+
+
+def test_la_restitution_permet_de_revenir_au_formulaire():
+    """Sans ce lien, la page est un cul-de-sac.
+
+    Une personne qui vient d'obtenir sa decision n'a aucun moyen d'en demander
+    une autre, sinon en modifiant l'adresse a la main — ce qui suppose de
+    savoir qu'on le peut.
+    """
+    page = restitution.construire(decision_type())
+    assert 'href="/"' in page
+    assert "Demander une autre décision" in page
