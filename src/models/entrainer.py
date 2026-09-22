@@ -139,7 +139,10 @@ def main():
             for nom, valeur in scores.items():
                 mlflow.log_metric(f"{jeu}_{nom}", valeur)
 
-        mlflow.lightgbm.log_model(modele, name="modele")
+        # artifact_path, et non name : name est la forme MLflow 3, que le
+        # serveur 2.17.2 de la pile ne comprend pas. artifact_path est
+        # acceptee par les deux versions.
+        mlflow.lightgbm.log_model(modele, artifact_path="modele")
 
         # Le modele est aussi ecrit sur disque : le calcul du seuil et l'analyse
         # SHAP le rechargent sans reentrainer. Le fichier est hors depot
