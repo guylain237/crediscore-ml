@@ -187,6 +187,17 @@ def _relire_postgres(id_decision):
         resultat["horodatage"] = resultat["horodatage"].isoformat()
         resultat["probabilite_defaut"] = float(resultat["probabilite_defaut"])
         resultat["seuil_applique"] = float(resultat["seuil_applique"])
+
+        # La colonne s'appelle facteurs_shap en base. Le reste du code — et le
+        # journal JSONL de developpement — parle de « facteurs ». On normalise
+        # ici, au seul endroit ou les deux chemins de lecture se rejoignent.
+        #
+        # Sans cette ligne, l'ecran de restitution affichait un tableau de
+        # motifs VIDE en production, alors que les facteurs etaient bien
+        # enregistres : restitution.py fait decision.get("facteurs", []), qui
+        # retombait sur sa valeur par defaut. Le defaut ne se voyait pas sur le
+        # poste, ou le journal JSONL porte deja le bon nom.
+        resultat["facteurs"] = resultat.pop("facteurs_shap")
         return resultat
 
 
