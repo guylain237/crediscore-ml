@@ -117,3 +117,4 @@ des données**, jamais estimé.
 | [`docs/strategie_decoupage.md`](docs/strategie_decoupage.md) | protocole train / validation / test, métriques, règles anti-fuite | rédigé |
 | [`docs/plan_features.md`](docs/plan_features.md) | variables à construire par source, traitements, conventions | rédigé |
 | [`docs/decisions.md`](docs/decisions.md) | journal des décisions d'architecte | rédigé |
+
