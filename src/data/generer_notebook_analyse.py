@@ -17,7 +17,7 @@ def code(source):
 md("""
 # CrediScore — Analyse exploratoire
 
-**Projet de certification Architecte en IA · Bloc 3**
+**Préparation des données — profilage des sources**
 Auteur : Tagne Guylain Florian
 
 Ce notebook explore les huit fichiers sources du projet et **établit les faits

@@ -50,7 +50,8 @@ production** :
 | Décider a priori d'une fréquence de réentraînement | Réentraînement **déclenché par la dérive**, pas par le calendrier |
 
 C'est une limite du jeu de données, assumée et documentée — et le contrôle
-compensatoire est précisément ce que le Bloc 3 et le Bloc 4 mettent en œuvre.
+compensatoire est précisément ce que le pipeline de données et la chaîne
+d'industrialisation mettent en œuvre.
 
 ---
 

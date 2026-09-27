@@ -1,6 +1,5 @@
 # Note d'équité — protocole de non-discrimination
 
-**Livrable du Bloc 1 — Certification Architecte en IA**
 **Auteur :** Tagne Guylain Florian · **Version 1.0** · **16/08/2026**
 **Application de la politique P-4 du [plan de gouvernance](gouvernance.md)**
 
@@ -88,9 +87,9 @@ métriques avec leur effectif**, jamais silencieusement écartés.
 
 | Attribut | Statut comme variable prédictive | Statut pour l'audit | Sous-populations |
 |---|---|---|---|
-| `CODE_GENDER` | ⛔ **interdit** (P-4) | conservé | F · M *(XNA exclu, n = 4)* |
-| `DAYS_BIRTH` (âge) | ⛔ **interdit** (P-4) | conservé | 18-25 · 26-35 · 36-50 · 51-65 · 65+ |
-| `NAME_FAMILY_STATUS` | ⛔ **interdit** (P-4) | conservé | Married · Single · Civil marriage · Separated · Widow |
+| `CODE_GENDER` | **interdit** (P-4) | conservé | F · M *(XNA exclu, n = 4)* |
+| `DAYS_BIRTH` (âge) | **interdit** (P-4) | conservé | 18-25 · 26-35 · 36-50 · 51-65 · 65+ |
+| `NAME_FAMILY_STATUS` | **interdit** (P-4) | conservé | Married · Single · Civil marriage · Separated · Widow |
 
 **Règle d'effectif minimal : 500 individus dans le jeu de test.** En dessous, la
 métrique n'est pas calculée et le groupe est déclaré avec son effectif. Vérifié :

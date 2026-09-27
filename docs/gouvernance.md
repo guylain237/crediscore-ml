@@ -1,6 +1,5 @@
 # Plan de gouvernance — système de scoring CrediScore
 
-**Livrable du Bloc 1 — Certification Architecte en IA**
 **Auteur :** Tagne Guylain Florian · **Version 1.0** · **16/08/2026**
 
 ---
@@ -60,10 +59,10 @@ Les obligations de l'AI Act applicables aux systèmes à haut risque de l'annexe
 s'appliquent **depuis le 2 août 2026**. Ce projet est donc conçu sous un régime
 **déjà en vigueur**, et non en anticipation.
 
-> ⚠️ **À vérifier avant l'oral :** le calendrier d'application a fait l'objet de
-> discussions de report partiel au niveau européen. Confirmer l'état définitif du
-> texte avant toute publication de ce document — pouvoir répondre
-> « je l'ai vérifié le … » vaut mieux que réciter une date.
+> **Point de veille.** Le calendrier d'application a fait l'objet de discussions
+> de report partiel au niveau européen. L'état définitif du texte doit être
+> reconfirmé, avec la date de vérification, avant toute publication de ce
+> document.
 
 ### 1.4 Ce que la qualification impose, article par article
 
@@ -73,7 +72,7 @@ s'appliquent **depuis le 2 août 2026**. Ce projet est donc conçu sous un régi
 | Art. 10 | Gouvernance des données, examen des biais | P-2, P-3, P-4 · contrôles C-3, C-4, C-6 |
 | Art. 11 | Documentation technique | `docs/` des deux dépôts + `decisions.md` |
 | Art. 12 | Enregistrement automatique des journaux | C-2 — log d'audit |
-| Art. 13 | Transparence envers l'utilisateur professionnel | P-5 · slides Bloc 4 |
+| Art. 13 | Transparence envers l'utilisateur professionnel | P-5 · notice d'utilisation de l'API |
 | Art. 14 | **Contrôle humain** | P-6 · C-12 |
 | Art. 15 | Exactitude, robustesse, cybersécurité | C-8, C-9, C-10, C-11 |
 | Art. 17 | Système de gestion de la qualité | §9 — procédures d'audit |

@@ -1,7 +1,7 @@
 # Variables sensibles — INTERDITES comme variables prédictives.
 # Utilisées UNIQUEMENT pour les tests d'équité (audit), jamais à l'entraînement.
 # Ce fichier est le contrat testé automatiquement par tests/test_no_sensitive_features.py.
-# Référence : note d'équité (Bloc 1) — non-discrimination exigée par l'AI Act.
+# Référence : docs/note_equite.md — non-discrimination exigée par l'AI Act.
 
 sensitive_features:
   # Genre

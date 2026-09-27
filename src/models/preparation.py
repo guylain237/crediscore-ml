@@ -31,9 +31,10 @@ from fairness import contract
 #
 # pandas lit les deux de la meme facon, via pyarrow et s3fs. Le code ne
 # change pas, seule l'adresse change — comme pour MLFLOW_TRACKING_URI et
-# comme pour les zones du data lake cote pipeline. C'est ce qui permet de
-# dire au jury que le modele consomme la sortie du pipeline, et pas une
-# copie locale qui aurait diverge.
+# comme pour les zones du data lake cote pipeline. C'est ce qui garantit que
+# le modele consomme la sortie du pipeline, et non une copie locale qui
+# aurait diverge.
+
 SOCLE = os.environ.get(
     "CREDISCORE_SOCLE",
     str(RACINE.parent / "donnees_pipeline" / "curated" / "socle_complet"),

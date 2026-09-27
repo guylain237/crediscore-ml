@@ -7,7 +7,8 @@ C'est la matière première de toute revue ultérieure.
 
 ## D-001 — 27/07/2026 — Deux dépôts GitHub publics distincts
 
-- **Contexte :** le Bloc 4 exige deux dépôts distincts (développement IA / CI-CD).
+- **Contexte :** le projet est structuré en deux dépôts distincts (développement
+  IA d'un côté, infrastructure et CI/CD de l'autre).
 - **Options :** monorepo avec dossiers ; deux dépôts privés ; deux dépôts publics.
 - **Choix :** deux dépôts publics — `crediscore-ml` et `crediscore-mlops`.
 - **Raison :** exigence explicite du référentiel ; publics pour que la revue externe accède
@@ -126,11 +127,12 @@ C'est la matière première de toute revue ultérieure.
 - **Raison :** la conformité a un coût de performance ; le mesurer permet de le
   défendre plutôt que de le subir. Un architecte doit connaître le prix de ses
   contraintes, pas prétendre qu'elles sont gratuites. Le
-  chiffre alimentera directement la note d'équité du Bloc 1.
+  chiffre alimentera directement la note d'équité.
 
 ## D-009 — 16/08/2026 — Un plan de gouvernance opposable, pas déclaratif
 
-- **Contexte :** le Bloc 1 est intégralement documentaire. Le risque n'est pas de
+- **Contexte :** le volet gouvernance est intégralement documentaire. Le risque
+  n'est pas de
   produire trop peu de texte, mais d'en produire un que le projet ne suit pas —
   toute revue vérifie la cohérence entre ce qui est écrit et ce que contient le dépôt.
   Le cas D-003 l'a démontré : un contrôle annoncé mais absent.

@@ -1,6 +1,5 @@
 # CrediScore — Développement de la solution IA
 
-**Projet de certification — Architecte en IA (Mastère 2)**
 **Auteur :** Tagne Guylain Florian
 
 [![CI](https://github.com/guylain237/crediscore-ml/actions/workflows/ci.yml/badge.svg)](https://github.com/guylain237/crediscore-ml/actions/workflows/ci.yml)
@@ -10,10 +9,11 @@
 > publication.
 
 Scoring prédictif de risque de défaut à l'octroi de crédit à la consommation.
-Ce dépôt est le **dépôt n°1** exigé par le Bloc 4 : développement de la solution IA
-(préparation des données, entraînement, explicabilité, tests d'équité, évaluation).
+Ce dépôt porte le **développement de la solution IA** : préparation des données,
+entraînement, explicabilité, tests d'équité et évaluation.
 
-> Le dépôt n°2 — infrastructure, pipelines de données et CI/CD — est ici :
+> L'infrastructure, les pipelines de données et la CI/CD sont dans le dépôt
+> complémentaire :
 > [crediscore-mlops](https://github.com/guylain237/crediscore-mlops)
 
 ## Problème métier
@@ -34,7 +34,7 @@ des risques.
 
 | Contrainte | Conséquence technique |
 |---|---|
-| Décision en quelques secondes au point de vente | Variables lourdes précalculées (feature store, dépôt n°2) |
+| Décision en quelques secondes au point de vente | Variables lourdes précalculées (feature store, dépôt `crediscore-mlops`) |
 | Tout refus doit être motivé (art. 22 RGPD) | Modèle explicable : LightGBM + SHAP, pas de deep learning opaque |
 | Non-discrimination (AI Act — système à haut risque) | Variables sensibles exclues du modèle et réservées à l'audit d'équité |
 
@@ -109,9 +109,9 @@ des données**, jamais estimé.
 
 | Document | Contenu | Produit par |
 |---|---|---|
-| [`docs/gouvernance.md`](docs/gouvernance.md) | **Bloc 1** — politiques P-1→P-9, contrôles C-1→C-12, registre RGPD art. 30, matrice de risques, matrice de traçabilité | rédigé |
-| [`docs/note_equite.md`](docs/note_equite.md) | **Bloc 1** — protocole de non-discrimination, métriques M-1→M-6, seuils figés avant mesure | rédigé |
-| [`docs/registre_revues.md`](docs/registre_revues.md) | **Bloc 1** — traces des revues de conformité et d'équité | tenu à jour |
+| [`docs/gouvernance.md`](docs/gouvernance.md) | politiques P-1→P-9, contrôles C-1→C-12, registre RGPD art. 30, matrice de risques, matrice de traçabilité | rédigé |
+| [`docs/note_equite.md`](docs/note_equite.md) | protocole de non-discrimination, métriques M-1→M-6, seuils figés avant mesure | rédigé |
+| [`docs/registre_revues.md`](docs/registre_revues.md) | traces des revues de conformité et d'équité | tenu à jour |
 | [`docs/data_profile.md`](docs/data_profile.md) | volumétrie, clés, cible, valeurs manquantes | `src/data/profile_raw.py` |
 | [`docs/schema_jointures.md`](docs/schema_jointures.md) | modèle relationnel, intégrité référentielle, couverture au grain dossier, colonnes temporelles | `src/data/profile_joins.py` |
 | [`docs/strategie_decoupage.md`](docs/strategie_decoupage.md) | protocole train / validation / test, métriques, règles anti-fuite | rédigé |

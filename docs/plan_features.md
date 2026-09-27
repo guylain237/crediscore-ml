@@ -43,7 +43,7 @@ Corrélations absolues avec la cible, mesurées sur les 307 511 dossiers :
 | `EXT_SOURCE_3` | 0,179 | 19,8 % | conservée |
 | `EXT_SOURCE_2` | 0,160 | 0,2 % | conservée |
 | `EXT_SOURCE_1` | 0,155 | 56,4 % | **conservée malgré 56 % de nuls** |
-| `DAYS_BIRTH` | 0,078 | 0 % | ⛔ **exclue — variable sensible** |
+| `DAYS_BIRTH` | 0,078 | 0 % | **exclue — variable sensible** |
 | `REGION_RATING_CLIENT_W_CITY` | 0,061 | 0 % | conservée |
 | `DAYS_LAST_PHONE_CHANGE` | 0,055 | 0 % | conservée |
 | `DAYS_EMPLOYED` | 0,045 | 0 % | conservée, après traitement (§2.3) |
@@ -136,12 +136,12 @@ fortement de la couverture par parent direct :
 
 | Source | Préfixe | Couverture dossier | Manquantes | Priorité |
 |---|---|---|---|---|
-| `previous_application` | `PREV_*` | 94,6 % | 5,4 % | 🟢 haute |
-| `installments_payments` | `INSTAL_*` | 94,1 % | 5,9 % | 🟢 **haute** |
-| `POS_CASH_balance` | `POS_*` | 93,3 % | 6,7 % | 🟢 haute |
-| `bureau` | `BUREAU_*` | 85,7 % | 14,3 % | 🟢 haute |
-| `bureau_balance` | `BB_*` | 30,0 % | 70,0 % | 🟠 basse |
-| `credit_card_balance` | `CC_*` | 25,3 % | 74,7 % | 🟠 basse |
+| `previous_application` | `PREV_*` | 94,6 % | 5,4 % | haute |
+| `installments_payments` | `INSTAL_*` | 94,1 % | 5,9 % | **haute** |
+| `POS_CASH_balance` | `POS_*` | 93,3 % | 6,7 % | haute |
+| `bureau` | `BUREAU_*` | 85,7 % | 14,3 % | haute |
+| `bureau_balance` | `BB_*` | 30,0 % | 70,0 % | basse |
+| `credit_card_balance` | `CC_*` | 25,3 % | 74,7 % | basse |
 
 L'écart entre couverture directe et couverture dossier est instructif :
 `installments_payments` ne couvre que 57,4 % des demandes antérieures, mais
@@ -272,7 +272,7 @@ qu'elles sont gratuites.
 
 ## 7. Volumétrie cible et conventions
 
-| Bloc | Variables |
+| Groupe | Variables |
 |---|---|
 | Socle `application` après retraits | ≈ 90 |
 | Ratios métier | 7 |
